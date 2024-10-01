@@ -1,0 +1,45 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# TypeScript compiled output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# nodemon process ID file
+pids/
+*.pid
+*.pid.lock
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*
+
+# OS or Editor specific
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Coverage reports
+coverage/
+
+# Temporary files
+temp/
+tmp/
+
+# Ignore ESLint cache
+.eslintcache

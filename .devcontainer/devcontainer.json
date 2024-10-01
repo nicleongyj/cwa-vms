@@ -1,0 +1,12 @@
+{
+    "name": "cwa-dev-container",
+    "dockerComposeFile": "../docker-compose-workspace.yml",
+    "service": "workspace",
+    "workspaceFolder": "/app",
+    "mounts": ["type=bind,source=/home/${localEnv:USER}/.ssh,target=/root/.ssh,readonly"],
+    "customizations": {
+        "vscode": {
+            "extensions": ["ms-azuretools.vscode-azurestaticwebapps", "esbenp.prettier-vscode"]
+        }
+    }
+}
