@@ -4,7 +4,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "npx tsc",
-        "start": "node dist/src/index.js",
+        "start": "npx env-cmd -f .env.dev node dist/src/index.js",
         "dev": "npx env-cmd -f .env.dev nodemon src/index.ts",
         "test": "jest",
         "lint": "eslint src/*.ts src/**/*.ts",
@@ -20,6 +20,7 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
+        "@prisma/client": "^5.21.1",
         "@supabase/supabase-js": "^2.45.4",
         "cors": "^2.8.5",
         "cwa-admin-backend": "file:",
@@ -47,6 +48,7 @@
         "lint-staged": "^15.2.10",
         "nodemon": "^3.1.7",
         "prettier": "^3.3.3",
+        "prisma": "^5.21.1",
         "supertest": "^7.0.0",
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
