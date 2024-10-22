@@ -1,11 +1,11 @@
 import { Router } from "express";
-import auth from "./routes/auth";
-import dev from "./routes/dev";
+import userRouter from "./user/userRouter";
+import authRouter from "./auth/authRouter";
 
 export default () => {
     const app = Router();
-    auth(app);
-    dev(app);
+    authRouter(app);
+    userRouter(app);
 
     return app;
 };
