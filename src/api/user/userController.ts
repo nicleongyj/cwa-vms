@@ -7,7 +7,7 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 export const getUserById = async (req: Request, res: Response) => {
-    const userId = String(req.query.id);
+    const userId = String(req.params.id);
     const user = await fetchUser(userId);
     res.status(200).json(user);
 };

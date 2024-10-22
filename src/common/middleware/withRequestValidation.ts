@@ -15,7 +15,7 @@ export const withRequestBodyValidation =
 export const withRequestParamsValidation =
     (querySchema: ZodSchema) =>
     (req: Request, res: Response, next: NextFunction): void => {
-        const result = querySchema.safeParse(req.query);
+        const result = querySchema.safeParse(req.params);
         if (!result.success) {
             res.status(400).json({ error: result.error.errors });
             return;
