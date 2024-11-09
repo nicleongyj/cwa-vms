@@ -26,6 +26,7 @@
         "cwa-admin-backend": "file:",
         "express": "^4.21.0",
         "jsonwebtoken": "^9.0.2",
+        "myinfo-connector-v4-nodejs": "^2.0.0",
         "zod": "^3.23.8"
     },
     "devDependencies": {
