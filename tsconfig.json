@@ -115,6 +115,6 @@
     },
     "include": [
         "src/**/*",
-        "src/types/**/*"  // Make sure your custom types are included
+        "src/types/**/*" // Make sure your custom types are included
     ]
 }

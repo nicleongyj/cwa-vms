@@ -4,76 +4,88 @@ import * as crypto from "crypto";
 import fs from "fs";
 import MyInfoConnector = require("myinfo-connector-v4-nodejs");
 
-const { APP_CONFIG, MYINFO_CONNECTOR_CONFIG } = require("../../../config/config.js")
+const { APP_CONFIG, MYINFO_CONNECTOR_CONFIG } = require("../../../config/config.js");
 const connector = new MyInfoConnector(MYINFO_CONNECTOR_CONFIG);
 
 let sessionIdCache: Record<string, string> = {};
+let currentCodeVerifier: string | null = null;
 
 export const generateCodeChallenge = async (req: Request, res: Response) => {
     try {
-      const pkceCodePair = connector.generatePKCECodePair();
-      
-      // Generate a session ID for storing code_verifier
-      const sessionId = crypto.randomBytes(16).toString("hex");
-      sessionIdCache[sessionId] = pkceCodePair.codeVerifier;
-  
-      res.cookie("sid", sessionId);
+        const pkceCodePair = connector.generatePKCECodePair();
 
-      const authUrl = constructSingpassAuthUrl(pkceCodePair.codeChallenge)
-      console.log("Constructed Singpass Authorization URL:", authUrl);
-  
-      res.status(200).send(pkceCodePair.codeChallenge);
+        const sessionId = crypto.randomBytes(16).toString("hex");
+        sessionIdCache[sessionId] = pkceCodePair.codeVerifier;
+        currentCodeVerifier = pkceCodePair.codeVerifier;
+
+        res.cookie("sid", sessionId);
+
+        const authUrl = constructSingpassAuthUrl(pkceCodePair.codeChallenge);
+        console.log("Singpass Redirect Authorization URL:", authUrl);
+
+        res.status(200).send({ codeChallenge: pkceCodePair.codeChallenge, sessionId });
     } catch (error) {
-      console.error("Error generating code challenge:", error);
-      res.status(500).send({ error });
+        console.error("Error generating code challenge:", error);
+        res.status(500).send({ error });
     }
-  };
+};
 
 const constructSingpassAuthUrl = (codeChallenge: string): string => {
-    const clientId = APP_CONFIG.DEMO_APP_CLIENT_ID; 
-    const redirectUri = APP_CONFIG.DEMO_APP_CALLBACK_URL; 
-    const scope = "uinfin name sex race";
-    const purpose_id = "demonstration"
-    const authUrl = `https://test.api.myinfo.gov.sg/com/v4/authorize`+`?client_id=${clientId}`
-                                                                    + `&scope=${scope}`
-                                                                    + `&purpose_id=${purpose_id}`
-                                                                    + `&code_challenge=${codeChallenge}`
-                                                                    + `&code_challenge_method=S256`
-                                                                    + `&response_type=code`
-                                                                    + `&redirect_uri=${redirectUri}`;
+    const authApiUrl = APP_CONFIG.MYINFO_API_AUTHORIZE;
+    const clientId = APP_CONFIG.DEMO_APP_CLIENT_ID;
+    const redirectUri = APP_CONFIG.DEMO_APP_CALLBACK_URL;
+    const scope = APP_CONFIG.DEMO_APP_SCOPES;
+    const purpose_id = APP_CONFIG.DEMO_APP_PURPOSE_ID;
+    const authUrl =
+        authApiUrl +
+        `?client_id=${clientId}` +
+        `&scope=${scope}` +
+        `&purpose_id=${purpose_id}` +
+        `&code_challenge=${codeChallenge}` +
+        `&code_challenge_method=S256` +
+        `&response_type=code` +
+        `&redirect_uri=${redirectUri}`;
     return authUrl;
 };
 
 export const getPersonData = async (req: Request, res: Response) => {
     try {
-        const { authCode } = req.body;  
-        const sessionId = req.cookies.sid;  
-        const codeVerifier = sessionIdCache[sessionId];  // Retrieve code verifier from session cache
+        console.log(req.body);
+        const { authCode, sid } = req.body;
+        // const sessionId = req.cookies.sid;
+        const codeVerifier = currentCodeVerifier;
 
         if (!codeVerifier) {
             res.status(400).send({ error: "Session expired or missing code verifier" });
-            return
+            return;
         }
 
         // Retrieve private keys from filesystem for signing and encryption
-        const privateSigningKey = fs.readFileSync(APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY, "utf8");
+        const privateSigningKey = fs.readFileSync(
+            APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY,
+            "utf8",
+        );
 
         let privateEncryptionKeys: string[] = [];
         fs.readdirSync(APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS).forEach((filename) => {
-        privateEncryptionKeys.push(fs.readFileSync(`${APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS}/${filename}`, "utf8"));
+            privateEncryptionKeys.push(
+                fs.readFileSync(
+                    `${APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS}/${filename}`,
+                    "utf8",
+                ),
+            );
         });
 
         // Call MyInfo Connector to get the person data
         const personData = await connector.getMyInfoPersonData(
-        authCode,
-        codeVerifier,
-        privateSigningKey,
-        privateEncryptionKeys
+            authCode,
+            codeVerifier,
+            privateSigningKey,
+            privateEncryptionKeys,
         );
 
         console.log("Person Data retrieved:", JSON.stringify(personData));
-
-        res.status(200).send(personData);  // Send the person data back to the frontend
+        res.status(200).send(personData); // Send the person data back to the frontend
     } catch (error) {
         console.error("Error retrieving person data:", error);
         res.status(500).send({ error });
@@ -81,10 +93,45 @@ export const getPersonData = async (req: Request, res: Response) => {
 };
 
 export const handleSingpassCallback = async function (req: Request, res: Response) {
-    console.log("CALLBACK")
-    const authCode = req.query.code;
-    res.status(200).send("Auth test endpoint is working!");
-}
+    const authCode = req.query.code as string;
+
+    if (!authCode) {
+        res.status(400).send("Authorisation code not found");
+        return;
+    }
+
+    try {
+        const personData = await retrievePersonDataWithAuthCode(authCode);
+        console.log(personData);
+        res.status(200).json(personData);
+    } catch (error) {
+        console.log("Error retrieving person data");
+        res.status(500).send({ error: "Error retrieving person data" });
+    }
+};
+
+const retrievePersonDataWithAuthCode = async (authCode: string) => {
+    try {
+        const response = await fetch("http://localhost:3001/api/v1/auth/getPersonData", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ authCode }),
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Post request failed");
+        }
+
+        const personData = await response.json();
+        return personData;
+    } catch (error) {
+        console.error("Error retrieving person data");
+        throw error;
+    }
+};
 
 export const confirmAuth = async function (req: Request, res: Response) {
     /**
@@ -109,5 +156,3 @@ export const confirmAuth = async function (req: Request, res: Response) {
     // Return the user to an error page with some instructions
     res.redirect(303, "http:localhost:5173/auth/auth-code-error");
 };
-
-

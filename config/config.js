@@ -1,10 +1,9 @@
-
 let ENVIRONMENT = process.argv[2];
 let urlEnvironmentPrefix = ENVIRONMENT == "prod" ? "" : `${ENVIRONMENT}.`;
 
 /**
  * Set the following demo app configurations for the demo app to run
- * 
+ *
  * DEMO_APP_CLIENT_ID: Client id provided during onboarding
  * DEMO_APP_SUBENTITY_ID: optional parameter for platform applications only
  * DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY : private signing key for client_assertion
@@ -14,18 +13,16 @@ let urlEnvironmentPrefix = ENVIRONMENT == "prod" ? "" : `${ENVIRONMENT}.`;
  * MYINFO_API_AUTHORIZE: The URL for Authorize API
  */
 const APP_CONFIG = {
-//   DEMO_APP_CLIENT_ID: "STG2-MYINFO-DEMO-APP", 
-  DEMO_APP_CLIENT_ID: "STG2-MYINFO-SELF-TEST", 
-  DEMO_APP_SUBENTITY_ID: "", 
-  DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY: "./cert/your-sample-app-signing-private-key.pem",
-  DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS: "./cert/encryption-private-keys/",
-//   DEMO_APP_CALLBACK_URL: "http://localhost:8000",
-  DEMO_APP_CALLBACK_URL: "http://localhost:3001/callback",
-  DEMO_APP_PURPOSE_ID: "demonstration",
-  DEMO_APP_SCOPES : "uinfin name sex race nationality dob email mobileno regadd housingtype hdbtype marital edulevel noa-basic ownerprivate cpfcontributions cpfbalances",
-  MYINFO_API_AUTHORIZE: `https://test.api.myinfo.gov.sg/com/v4/authorize`
+    DEMO_APP_CLIENT_ID: "STG2-MYINFO-SELF-TEST",
+    DEMO_APP_SUBENTITY_ID: "",
+    DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY: "./cert/your-sample-app-signing-private-key.pem",
+    DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS: "./cert/encryption-private-keys/",
+    DEMO_APP_CALLBACK_URL: "http://localhost:3001/callback",
+    DEMO_APP_PURPOSE_ID: "demonstration",
+    DEMO_APP_SCOPES:
+        "uinfin name sex race nationality dob email mobileno regadd housingtype hdbtype marital edulevel noa-basic ownerprivate cpfcontributions cpfbalances",
+    MYINFO_API_AUTHORIZE: `https://test.api.myinfo.gov.sg/com/v4/authorize`,
 };
-
 
 /**
  * Set following configuration for MyInfo library to call token and person API
@@ -45,7 +42,7 @@ const APP_CONFIG = {
  * Optional parameters
  * CLIENT_ASSERTION_SIGNING_KID : kid that will be appended to client_assertion header to match JWKS kid
  * SUBENTITY_ID: optional parameter for platform applications only
- * 
+ *
  * Proxy parameters are optional:
  * USE_PROXY: Indicate whether proxy url is used. Values accepted: Y or N
  * PROXY_TOKEN_URL: Configure your proxy url here, if any.
@@ -62,19 +59,19 @@ const APP_CONFIG = {
  */
 
 const MYINFO_CONNECTOR_CONFIG = {
-  CLIENT_ID: APP_CONFIG.DEMO_APP_CLIENT_ID,
-  SUBENTITY_ID: APP_CONFIG.DEMO_APP_SUBENTITY_ID,
-  REDIRECT_URL: APP_CONFIG.DEMO_APP_CALLBACK_URL,
-  SCOPE : APP_CONFIG.DEMO_APP_SCOPES,
-  AUTHORIZE_JWKS_URL: `https://test.authorise.singpass.gov.sg/.well-known/keys.json`,
-  MYINFO_JWKS_URL: `https://test.authorise.singpass.gov.sg/.well-known/keys.json`,
-  TOKEN_URL: `https://test.api.myinfo.gov.sg/com/v4/token`,
-  PERSON_URL: `https://test.api.myinfo.gov.sg/com/v4/person`,
-  CLIENT_ASSERTION_SIGNING_KID :'', // optional parameter to specify specific kid for signing. Default will be thumbprint of JWK
-  USE_PROXY: "N",
-  PROXY_TOKEN_URL: "",
-  PROXY_PERSON_URL: "",
-  DEBUG_LEVEL: "info"
+    CLIENT_ID: APP_CONFIG.DEMO_APP_CLIENT_ID,
+    SUBENTITY_ID: APP_CONFIG.DEMO_APP_SUBENTITY_ID,
+    REDIRECT_URL: APP_CONFIG.DEMO_APP_CALLBACK_URL,
+    SCOPE: APP_CONFIG.DEMO_APP_SCOPES,
+    AUTHORIZE_JWKS_URL: `https://test.authorise.singpass.gov.sg/.well-known/keys.json`,
+    MYINFO_JWKS_URL: `https://test.authorise.singpass.gov.sg/.well-known/keys.json`,
+    TOKEN_URL: `https://test.api.myinfo.gov.sg/com/v4/token`,
+    PERSON_URL: `https://test.api.myinfo.gov.sg/com/v4/person`,
+    CLIENT_ASSERTION_SIGNING_KID: "", // optional parameter to specify specific kid for signing. Default will be thumbprint of JWK
+    USE_PROXY: "N",
+    PROXY_TOKEN_URL: "",
+    PROXY_PERSON_URL: "",
+    DEBUG_LEVEL: "info",
 };
 
-module.exports = { MYINFO_CONNECTOR_CONFIG, APP_CONFIG }
+module.exports = { MYINFO_CONNECTOR_CONFIG, APP_CONFIG };
