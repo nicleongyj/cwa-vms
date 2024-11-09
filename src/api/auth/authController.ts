@@ -1,5 +1,90 @@
 import { Request, Response } from "express";
 import { supabase } from "../../lib/supabase";
+import * as crypto from "crypto";
+import fs from "fs";
+import MyInfoConnector = require("myinfo-connector-v4-nodejs");
+
+const { APP_CONFIG, MYINFO_CONNECTOR_CONFIG } = require("../../../config/config.js")
+const connector = new MyInfoConnector(MYINFO_CONNECTOR_CONFIG);
+
+let sessionIdCache: Record<string, string> = {};
+
+export const generateCodeChallenge = async (req: Request, res: Response) => {
+    try {
+      const pkceCodePair = connector.generatePKCECodePair();
+      
+      // Generate a session ID for storing code_verifier
+      const sessionId = crypto.randomBytes(16).toString("hex");
+      sessionIdCache[sessionId] = pkceCodePair.codeVerifier;
+  
+      res.cookie("sid", sessionId);
+
+      const authUrl = constructSingpassAuthUrl(pkceCodePair.codeChallenge)
+      console.log("Constructed Singpass Authorization URL:", authUrl);
+  
+      res.status(200).send(pkceCodePair.codeChallenge);
+    } catch (error) {
+      console.error("Error generating code challenge:", error);
+      res.status(500).send({ error });
+    }
+  };
+
+const constructSingpassAuthUrl = (codeChallenge: string): string => {
+    const clientId = APP_CONFIG.DEMO_APP_CLIENT_ID; 
+    const redirectUri = APP_CONFIG.DEMO_APP_CALLBACK_URL; 
+    const scope = "uinfin name sex race";
+    const purpose_id = "demonstration"
+    const authUrl = `https://test.api.myinfo.gov.sg/com/v4/authorize`+`?client_id=${clientId}`
+                                                                    + `&scope=${scope}`
+                                                                    + `&purpose_id=${purpose_id}`
+                                                                    + `&code_challenge=${codeChallenge}`
+                                                                    + `&code_challenge_method=S256`
+                                                                    + `&response_type=code`
+                                                                    + `&redirect_uri=${redirectUri}`;
+    return authUrl;
+};
+
+export const getPersonData = async (req: Request, res: Response) => {
+    try {
+        const { authCode } = req.body;  
+        const sessionId = req.cookies.sid;  
+        const codeVerifier = sessionIdCache[sessionId];  // Retrieve code verifier from session cache
+
+        if (!codeVerifier) {
+            res.status(400).send({ error: "Session expired or missing code verifier" });
+            return
+        }
+
+        // Retrieve private keys from filesystem for signing and encryption
+        const privateSigningKey = fs.readFileSync(APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_SIGNING_KEY, "utf8");
+
+        let privateEncryptionKeys: string[] = [];
+        fs.readdirSync(APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS).forEach((filename) => {
+        privateEncryptionKeys.push(fs.readFileSync(`${APP_CONFIG.DEMO_APP_CLIENT_PRIVATE_ENCRYPTION_KEYS}/${filename}`, "utf8"));
+        });
+
+        // Call MyInfo Connector to get the person data
+        const personData = await connector.getMyInfoPersonData(
+        authCode,
+        codeVerifier,
+        privateSigningKey,
+        privateEncryptionKeys
+        );
+
+        console.log("Person Data retrieved:", JSON.stringify(personData));
+
+        res.status(200).send(personData);  // Send the person data back to the frontend
+    } catch (error) {
+        console.error("Error retrieving person data:", error);
+        res.status(500).send({ error });
+    }
+};
+
+export const handleSingpassCallback = async function (req: Request, res: Response) {
+    console.log("CALLBACK")
+    const authCode = req.query.code;
+    res.status(200).send("Auth test endpoint is working!");
+}
 
 export const confirmAuth = async function (req: Request, res: Response) {
     /**
@@ -24,3 +109,5 @@ export const confirmAuth = async function (req: Request, res: Response) {
     // Return the user to an error page with some instructions
     res.redirect(303, "http:localhost:5173/auth/auth-code-error");
 };
+
+
