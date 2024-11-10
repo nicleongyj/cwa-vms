@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build and deploy:
-    runs-on: ubuntu-24.04.1
+  build-and-deploy:
+    runs-on: ubuntu-24.04
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
