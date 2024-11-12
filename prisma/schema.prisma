@@ -12,3 +12,138 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
+// Enum Definitions
+enum UserRole {
+  STAFF
+  VOLUNTEER
+  DONOR
+}
+
+enum VolunteerDuration {
+  AD_HOC
+  LONG_TERM
+  SHORT_TERM
+}
+
+enum VolunteerInterest {
+  BEFRIENDER
+  EVENT_SUPPORT
+  FUNDRAISER
+}
+
+enum DonationFrequency {
+  ONE_TIME
+  MONTHLY
+  YEARLY
+}
+
+enum PaymentMethod {
+  VISA
+  MASTERCARD
+  CHEQUE
+  CASH
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum AssignmentStatus {
+  ACCEPT
+  REJECT
+  RECONSIDER
+}
+
+// Model Definitions
+model Users {
+  user_id       Int       @id @default(autoincrement())
+  nric          String    @unique
+  email         String?   @unique
+  password_hash String?
+  first_name    String
+  last_name     String
+  role          UserRole
+  contact_number String?
+  address       String?
+  nationality   String?
+  ethnicity     String?
+  dob           DateTime?
+  gender        String?
+  occupation    String?
+  created_at    DateTime  @default(now())
+  Volunteer     Volunteer?
+  Donor         Donor?
+  // Relations
+  Assignments    Assignments[]
+}
+
+model Volunteer {
+  volunteer_id      Int               @id
+  languages_spoken  String?
+  education         String?
+  duration          VolunteerDuration
+  availability      String?
+  interest          VolunteerInterest
+  skillsets         String?
+  past_experience   Boolean           @default(false)
+  // Relations
+  users              Users              @relation(fields: [volunteer_id], references: [user_id])
+  Assignments        Assignments[]
+}
+
+model Donor {
+  donor_id         Int             @id
+  entity           String?
+  frequency        DonationFrequency
+  // Relations
+  users             Users            @relation(fields: [donor_id], references: [user_id])
+  donations        Donation[]
+}
+
+model Project {
+  project_id        Int             @id @default(autoincrement())
+  project_name      String
+  description       String?
+  skills_required   String?
+  commitment_duration String?
+  status            ProjectStatus   @default(ACTIVE)
+  assigned_volunteers Json?
+  // Relations
+  donations         Donation[]
+  Assignments        Assignments[]
+}
+
+model Donation {
+  donation_id      Int             @id @default(autoincrement())
+  amount           Decimal         @default(0.00)
+  payment_method   PaymentMethod?
+  donation_date    DateTime?
+  donor            Donor           @relation(fields: [donor_id], references: [donor_id])
+  project          Project?        @relation(fields: [project_id], references: [project_id])
+  donor_id         Int
+  project_id       Int?
+}
+
+model Assignments {
+  assignment_id    Int             @id @default(autoincrement())
+  start_date       DateTime
+  end_date         DateTime
+  status           AssignmentStatus @default(REJECT)
+  volunteer_role   String
+  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [volunteer_id])
+  project          Project         @relation(fields: [project_id], references: [project_id])
+  users             Users            @relation(fields: [user_id], references: [user_id])  // Add back-relation to User
+  volunteer_id     Int
+  project_id       Int
+  user_id          Int
+}
+
+model Staff {
+  staff_id         Int             @id @default(autoincrement())
+  role_name        String
+  permissions      Json
+  super_admin      Boolean         @default(false)
+}
+
