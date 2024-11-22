@@ -1,11 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import { AuthRequest } from "../types/authRequest";
 
-interface CustomRequest extends Request {
-    user?: string | JwtPayload;
-}
-
-export default (req: CustomRequest, res: Response, next: NextFunction): void => {
+export default (req: AuthRequest, res: Response, next: NextFunction): void => {
     const authHeader = req.headers["authorization"];
 
     if (!authHeader) {
