@@ -4,17 +4,17 @@ import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default [
-    { files: ["**/*.{js,mjs,cjs,ts}"] },
-    { languageOptions: { globals: globals.node } },
-    {
-        rules: {
-            eqeqeq: "off",
-            "no-unused-vars": "error",
-            "prefer-const": ["error", { ignoreReadBeforeAssign: true }],
-        },
+  { files: ["**/*.{js,mjs,cjs,ts}"] },
+  { languageOptions: { globals: globals.node } },
+  {
+    rules: {
+      eqeqeq: "off",
+      "no-unused-vars": "error",
+      "prefer-const": ["error", { ignoreReadBeforeAssign: true }],
     },
-    { ignores: ["node_modules/*"] },
-    pluginJs.configs.recommended,
-    ...tseslint.configs.recommended,
-    eslintPluginPrettierRecommended,
+  },
+  { ignores: ["node_modules/*"] },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
 ];
