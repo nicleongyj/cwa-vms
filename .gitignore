@@ -25,6 +25,7 @@ pids/
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # OS or Editor specific
 .DS_Store
