@@ -1,20 +1,53 @@
 import { Request, Response } from "express";
+import {
+    getVolunteerService,
+    getAllVolunteersService,
+    addVolunteerService,
+    deleteVolunteerService,
+} from "./volunteerService";
+import { VolunteerSchema } from "./volunteerModel";
+import { z } from "zod";
 
-export const getVolunteers = (req: Request, res: Response): void => {
-    res.json({ message: "Here are the volunteers!" });
+export const getVolunteers = async (req: Request, res: Response) => {
+    const volunteers = await getAllVolunteersService();
+
+    const validation = z.array(VolunteerSchema).safeParse(volunteers);
+    if (!validation.success) {
+        res.status(400).json({
+            error: "Invalid volunteer data",
+            details: validation.error.format(),
+        });
+    }
+    res.status(200).json(volunteers);
 };
 
-export const addVolunteer = (req: Request, res: Response): void => {
-    const volunteer = req.body;
-    res.status(201).json({ message: "Volunteer added!", volunteer });
+export const getVolunteerById = async (req: Request, res: Response) => {
+    const volunteerId = String(req.params.id);
+    const volunteer = await getVolunteerService(volunteerId);
+
+    const validation = VolunteerSchema.safeParse(volunteer);
+    if (!validation.success) {
+        res.status(400).json({
+            error: "Invalid volunteer data",
+            details: validation.error.format(),
+        });
+    }
+    res.status(200).json(volunteer);
 };
 
-export const updateVolunteer = (req: Request, res: Response): void => {
+export const addVolunteer = async (req: Request, res: Response) => {
     const volunteer = req.body;
-    res.status(201).json({ message: "Volunteer updated!", volunteer });
+    const result = await addVolunteerService(volunteer);
+    res.status(200).json(result);
 };
 
-export const deleteVolunteer = (req: Request, res: Response): void => {
-    const volunteer = req.body;
-    res.status(201).json({ message: "Volunteer deleted!", volunteer });
+export const updateVolunteer = async (req: Request, res: Response) => {
+    //TODO
+    res.status(200).json({ message: "Volunteer updated!" });
+};
+
+export const deleteVolunteer = async (req: Request, res: Response) => {
+    const volunteerId = String(req.params.id);
+    const result = await deleteVolunteerService(volunteerId);
+    res.status(200).json(result);
 };

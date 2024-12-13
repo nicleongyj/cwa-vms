@@ -1,25 +1,36 @@
 import { Router } from "express";
 import {
     getVolunteers,
+    getVolunteerById,
     addVolunteer,
     updateVolunteer,
     deleteVolunteer,
 } from "./volunteerController";
+import {
+    withRequestBodyValidation,
+    withRequestParamsValidation,
+} from "../../common/middleware/withRequestValidation";
+import { GetVolunteerId, VolunteerSchema } from "./volunteerModel";
+import express from "express";
 
 const route = Router();
 
-export default (app: Router): void => {
+export default (app: Router) => {
+    app.use(express.json());
     app.use("/volunteer", route);
 
-    // GET endpoint
+    // GET all volunteers
     route.get("/", getVolunteers);
 
-    // POST endpoint
-    route.post("/", addVolunteer);
+    // Get volunteer by ID
+    route.get("/:id", withRequestParamsValidation(GetVolunteerId), getVolunteerById);
 
-    // PATCH endpoint
-    route.patch("/", updateVolunteer);
+    // Add volunteer
+    route.post("/", withRequestBodyValidation(VolunteerSchema), addVolunteer);
 
-    // DELETE endpoint
-    route.delete("/", deleteVolunteer);
+    // Update volunteer
+    route.patch("/:id", withRequestParamsValidation(GetVolunteerId), updateVolunteer);
+
+    // Delete volunteer
+    route.delete("/:id", withRequestParamsValidation(GetVolunteerId), deleteVolunteer);
 };
