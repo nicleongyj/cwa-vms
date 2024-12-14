@@ -4,6 +4,7 @@ import {
     getAllVolunteersService,
     addVolunteerService,
     deleteVolunteerService,
+    updateVolunteerService,
 } from "./volunteerService";
 import { VolunteerSchema } from "./volunteerModel";
 import { z } from "zod";
@@ -42,7 +43,8 @@ export const addVolunteer = async (req: Request, res: Response) => {
 };
 
 export const updateVolunteer = async (req: Request, res: Response) => {
-    //TODO
+    const volunteerId = String(req.params.id);
+    await updateVolunteerService(volunteerId);
     res.status(200).json({ message: "Volunteer updated!" });
 };
 
