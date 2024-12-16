@@ -14,11 +14,6 @@ datasource db {
 }
 
 // Enum Definitions
-enum UserRole {
-  STAFF
-  VOLUNTEER
-  DONOR
-}
 
 enum VolunteerDuration {
   AD_HOC
@@ -57,48 +52,63 @@ enum AssignmentStatus {
 }
 
 // Model Definitions
-model Users {
-  user_id       Int       @id @default(autoincrement())
-  nric          String    @unique
-  email         String?   @unique
-  password_hash String?
-  first_name    String
-  last_name     String
-  role          UserRole
-  contact_number String?
-  address       String?
-  nationality   String?
-  ethnicity     String?
-  dob           DateTime?
-  gender        String?
-  occupation    String?
-  created_at    DateTime  @default(now())
-  Volunteer     Volunteer?
-  Donor         Donor?
+model GeneralUser {
+  user_id    String  @id @default(uuid())  
+  name       String
+  email      String? @unique
+  created_at DateTime @default(now())
+
   // Relations
-  Assignments    Assignments[]
+  EndUser    EndUser?
+  Staff      Staff?
+}
+
+model EndUser {
+  user_id         String      @id @default(uuid()) @relation(fields: [user_id], references: [user_id]) 
+  contact_number  String?
+  address         String?
+  nationality     String?
+  ethnicity       String?
+  gender          String?
+  dob             DateTime?
+  occupation      String?
+  created_at      DateTime     @default(now())
+  
+  // Relations
+  general_user    GeneralUser @relation(fields: [user_id], references: [user_id])
+  Volunteer       Volunteer?
+  Donor           Donor?
+  Assignments     Assignment[]
+}
+
+model Staff {
+  user_id         String      @id @relation(fields: [user_id], references: [user_id]) 
+  super_admin     Boolean     @default(false)
+
+  general_user    GeneralUser @relation(fields: [user_id], references: [user_id])
 }
 
 model Volunteer {
-  volunteer_id      Int               @id
+  user_id           String      @id @relation(fields: [user_id], references: [user_id]) 
   languages_spoken  String?
   education         String?
   duration          VolunteerDuration
-  availability      String?
   interest          VolunteerInterest
-  skillsets         String?
+  availability      String?
+  expertise         String?
+  volunteering_hours Int?
   past_experience   Boolean           @default(false)
   // Relations
-  users              Users              @relation(fields: [volunteer_id], references: [user_id])
+  general_user      GeneralUser @relation(fields: [user_id], references: [user_id])
   Assignments        Assignments[]
 }
 
 model Donor {
-  donor_id         Int             @id
-  entity           String?
+  user_id          String      @id @relation(fields: [user_id], references: [user_id]) 
   frequency        DonationFrequency
+
   // Relations
-  users             Users            @relation(fields: [donor_id], references: [user_id])
+  general_user      GeneralUser @relation(fields: [user_id], references: [user_id])
   donations        Donation[]
 }
 
@@ -110,6 +120,7 @@ model Project {
   commitment_duration String?
   status            ProjectStatus   @default(ACTIVE)
   assigned_volunteers Json?
+
   // Relations
   donations         Donation[]
   Assignments        Assignments[]
@@ -120,30 +131,28 @@ model Donation {
   amount           Decimal         @default(0.00)
   payment_method   PaymentMethod?
   donation_date    DateTime?
-  donor            Donor           @relation(fields: [donor_id], references: [donor_id])
+  tax_deduction    Boolean?
+
+  donor            Donor           @relation(fields: [donor_id], references: [user_id])
   project          Project?        @relation(fields: [project_id], references: [project_id])
-  donor_id         Int
-  project_id       Int?
+
+  donor_id         String
+  project_id       String?
 }
 
-model Assignments {
+model Assignment {
   assignment_id    Int             @id @default(autoincrement())
   start_date       DateTime
   end_date         DateTime
   status           AssignmentStatus @default(REJECT)
   volunteer_role   String
-  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [volunteer_id])
+
+  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [user_id])
   project          Project         @relation(fields: [project_id], references: [project_id])
-  users             Users            @relation(fields: [user_id], references: [user_id])  // Add back-relation to User
-  volunteer_id     Int
-  project_id       Int
-  user_id          Int
+
+  volunteer_id     String
+  project_id       String
+  user_id          String
 }
 
-model Staff {
-  staff_id         Int             @id @default(autoincrement())
-  role_name        String
-  permissions      Json
-  super_admin      Boolean         @default(false)
-}
 
