@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
 import { AuthRequest } from "../types/authRequest";
 
-export default (req: AuthRequest, res: Response, next: NextFunction): void => {
+
+export default async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers["authorization"];
 
     if (!authHeader) {
@@ -20,15 +20,21 @@ export default (req: AuthRequest, res: Response, next: NextFunction): void => {
         return;
     }
 
-    let user: JwtPayload | string;
+    const headers = new Headers();
+    headers.append("Authorization", authHeader);
+    const options = {
+         method: "GET",
+         headers: headers
+    };
+    const graphEndpoint = "https://graph.microsoft.com/v2.0/me";
     try {
-        user = jwt.verify(token, process.env.SUPABASE_JWT_SECRET ?? "");
+      const response = await fetch(graphEndpoint, options);
+      req.user = await response.json();
     } catch (error) {
-        console.log(error);
+        console.error(`[auth] ${error}`);
         res.status(403).json({ message: "Invalid or expired token" });
         return;
     }
-    req.user = user;
 
     next();
 };
