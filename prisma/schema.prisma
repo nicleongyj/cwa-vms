@@ -64,7 +64,8 @@ model GeneralUser {
 }
 
 model EndUser {
-  user_id         String      @id @default(uuid()) @relation(fields: [user_id], references: [user_id]) 
+  end_user_id     String      @id @default(uuid())
+  general_user_id String      @unique
   contact_number  String?
   address         String?
   nationality     String?
@@ -75,21 +76,22 @@ model EndUser {
   created_at      DateTime     @default(now())
   
   // Relations
-  general_user    GeneralUser @relation(fields: [user_id], references: [user_id])
+  general_user    GeneralUser @relation(fields: [general_user_id], references: [user_id])
   Volunteer       Volunteer?
   Donor           Donor?
-  Assignments     Assignment[]
 }
 
 model Staff {
-  user_id         String      @id @relation(fields: [user_id], references: [user_id]) 
+  staff_id        String      @id @default(uuid())
   super_admin     Boolean     @default(false)
+  general_user_id String      @unique
 
-  general_user    GeneralUser @relation(fields: [user_id], references: [user_id])
+  general_user    GeneralUser     @relation(fields: [general_user_id], references: [user_id])
 }
 
 model Volunteer {
-  user_id           String      @id @relation(fields: [user_id], references: [user_id]) 
+  volunteer_id    String      @id @default(uuid())
+  end_user_id     String      @unique
   languages_spoken  String?
   education         String?
   duration          VolunteerDuration
@@ -99,21 +101,22 @@ model Volunteer {
   volunteering_hours Int?
   past_experience   Boolean           @default(false)
   // Relations
-  general_user      GeneralUser @relation(fields: [user_id], references: [user_id])
-  Assignments        Assignments[]
+  end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])
+  Assignments        Assignment[]
 }
 
 model Donor {
-  user_id          String      @id @relation(fields: [user_id], references: [user_id]) 
+  donor_id        String      @id @default(uuid())
   frequency        DonationFrequency
+  end_user_id     String      @unique
 
   // Relations
-  general_user      GeneralUser @relation(fields: [user_id], references: [user_id])
+  end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])
   donations        Donation[]
 }
 
 model Project {
-  project_id        Int             @id @default(autoincrement())
+  project_id        String      @id @default(uuid())
   project_name      String
   description       String?
   skills_required   String?
@@ -123,36 +126,33 @@ model Project {
 
   // Relations
   donations         Donation[]
-  Assignments        Assignments[]
+  Assignments        Assignment[]
 }
 
 model Donation {
   donation_id      Int             @id @default(autoincrement())
+  donor_id       String      @unique
+  project_id      String    @unique
   amount           Decimal         @default(0.00)
   payment_method   PaymentMethod?
   donation_date    DateTime?
   tax_deduction    Boolean?
 
-  donor            Donor           @relation(fields: [donor_id], references: [user_id])
+  donor            Donor           @relation(fields: [donor_id], references: [donor_id])
   project          Project?        @relation(fields: [project_id], references: [project_id])
-
-  donor_id         String
-  project_id       String?
 }
 
 model Assignment {
   assignment_id    Int             @id @default(autoincrement())
+  volunteer_id     String      @unique
+  project_id       String
   start_date       DateTime
   end_date         DateTime
   status           AssignmentStatus @default(REJECT)
   volunteer_role   String
 
-  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [user_id])
+  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [volunteer_id])
   project          Project         @relation(fields: [project_id], references: [project_id])
-
-  volunteer_id     String
-  project_id       String
-  user_id          String
 }
 
 
