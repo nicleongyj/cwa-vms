@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../types/authRequest";
-
+import axios, { isAxiosError } from "axios";
 
 export default async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers["authorization"];
@@ -20,18 +20,16 @@ export default async (req: AuthRequest, res: Response, next: NextFunction): Prom
         return;
     }
 
-    const headers = new Headers();
-    headers.append("Authorization", authHeader);
-    const options = {
-         method: "GET",
-         headers: headers
-    };
-    const graphEndpoint = "https://graph.microsoft.com/v2.0/me";
+    const graphEndpoint = "https://graph.microsoft.com/v1.0/me";
     try {
-      const response = await fetch(graphEndpoint, options);
-      req.user = await response.json();
+        const response = await axios.get(graphEndpoint, { headers: { Authorization: authHeader } });
+        req.user = await response.data;
     } catch (error) {
-        console.error(`[auth] ${error}`);
+        if (isAxiosError(error)) {
+            console.error(`[auth] Error fetching user: ${JSON.stringify(error.response?.data)}`);
+        } else {
+            console.error(`[auth] Error fetching user: ${error}`);
+        }
         res.status(403).json({ message: "Invalid or expired token" });
         return;
     }
