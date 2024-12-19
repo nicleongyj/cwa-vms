@@ -1,19 +1,20 @@
+import { z } from 'zod';
+import dotenv from 'dotenv'
 
-export const config = {
-  database: {
-    url: process.env.DATABASE_URL,
-  },
-  port: process.env.PORT,
-  supabase: {
-    url: process.env.SUPABASE_URL,
-    jwtSecret: process.env.SUPABASE_JWT_SECRET,
-    key: process.env.SUPABASE_KEY,
-  },
-  msalConfig: {
-    auth: {
-      clientId: process.env.AZURE_CLIENT_ID, // 'Application (client) ID' of app registration in Azure portal - this value is a GUID
-      authority: process.env.AZURE_CLOUD_INSTANCE! + process.env.AZURE_TENANT_ID!, // Full directory URL, in the form of https://login.microsoftonline.com/<tenant>
-      clientSecret: process.env.AZURE_CLIENT_SECRET // Client secret generated from the app registration in Azure portal
-    },
-  }
-};
+const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
+dotenv.config({ path: envFile });
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.string().transform((val) => parseInt(val, 10)),
+  DATABASE_URL: z.string().url()
+})
+
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+  console.error(" Invalid enviroment variables:", parsedEnv.error.format());
+  process.exit(1);
+}
+
+export const config = parsedEnv.data;
