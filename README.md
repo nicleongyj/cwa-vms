@@ -15,7 +15,7 @@ $ cp .env.example .env.development
 
 2. Start a local copy of your database, preferably using `docker-compose.yml`
 ```
-$ docker compose up -d
+$ docker compose -f docker-compose-workspace.yml up -d
 ```
 
 2. Generate Prisma models
