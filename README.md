@@ -10,7 +10,7 @@ $ cp .env.example .env.development
 ```
 You may also like to copy a set of environment variables for production
 ```
-$ cp .env.example .env.development
+$ cp .env.example .env.production
 ```
 
 2. Start a local copy of your database, preferably using `docker-compose.yml`
