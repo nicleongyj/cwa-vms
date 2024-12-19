@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { config } from "../config";
 
 interface CustomRequest extends Request {
     user?: string | JwtPayload;
@@ -26,7 +25,7 @@ export default (req: CustomRequest, res: Response, next: NextFunction): void => 
 
     let user: JwtPayload | string;
     try {
-        user = jwt.verify(token, config?.supabase?.jwtSecret ?? "");
+        user = jwt.verify(token, process.env.SUPABASE_JWT_SECRET ?? "");
     } catch (error) {
         console.log(error);
         res.status(403).json({ message: "Invalid or expired token" });
