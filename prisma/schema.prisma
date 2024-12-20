@@ -130,7 +130,7 @@ model Project {
 }
 
 model Donation {
-  donation_id      Int             @id @default(autoincrement())
+  donation_id     String  @id @default(uuid())
   donor_id       String      @unique
   project_id      String    @unique
   amount           Decimal         @default(0.00)
@@ -143,7 +143,7 @@ model Donation {
 }
 
 model Assignment {
-  assignment_id    Int             @id @default(autoincrement())
+  assignment_id    String  @id @default(uuid())
   volunteer_id     String      @unique
   project_id       String
   start_date       DateTime
