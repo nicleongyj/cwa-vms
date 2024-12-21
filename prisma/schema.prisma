@@ -83,10 +83,17 @@ model EndUser {
 
 model Staff {
   staff_id        String      @id @default(uuid())
-  super_admin     Boolean     @default(false)
   general_user_id String      @unique
 
-  general_user    GeneralUser     @relation(fields: [general_user_id], references: [user_id])
+  general_user    GeneralUser  @relation(fields: [general_user_id], references: [user_id])
+  superadmin      Superadmin?
+}
+
+model Superadmin {
+  superadmin_id   String      @id @default(uuid())
+  staff_id        String      @unique
+
+  staff           Staff     @relation(fields: [staff_id], references: [staff_id])
 }
 
 model Volunteer {
