@@ -11,13 +11,89 @@ jest.mock("../../../common/middleware/withAuth", () => {
     };
 });
 
+let donors = [
+    {
+        donor_id: "uuid-1",
+        frequency: "ONE_TIME",
+        end_user_id: "user-1",
+        donations: [
+            {
+                donation_id: "donation-1",
+                donor_id: "uuid-1",
+                project_id: "project-1",
+                amount: 100.0,
+                payment_method: "Credit Card",
+                donation_date: "2024-12-01",
+                tax_deduction: true,
+            },
+        ],
+    },
+    {
+        donor_id: "uuid-2",
+        frequency: "MONTHLY",
+        end_user_id: "user-2",
+        donations: [
+            {
+                donation_id: "donation-2",
+                donor_id: "uuid-2",
+                project_id: "project-2",
+                amount: 50.0,
+                payment_method: "PayPal",
+                donation_date: "2024-12-02",
+                tax_deduction: false,
+            },
+        ],
+    },
+    {
+        donor_id: "uuid-3",
+        frequency: "YEARLY",
+        end_user_id: "user-3",
+        donations: [],
+    },
+];
+
 describe("Donor Service", () => {
     it("should get all donors correctly", async () => {
         const donors = await getAllDonorsService();
         expect(donors).toStrictEqual([
-            { donor_id: "uuid-1", frequency: "ONE_TIME", end_user_id: "user-1" },
-            { donor_id: "uuid-2", frequency: "MONTHLY", end_user_id: "user-2" },
-            { donor_id: "uuid-3", frequency: "YEARLY", end_user_id: "user-3" },
+            {
+                donor_id: "uuid-1",
+                frequency: "ONE_TIME",
+                end_user_id: "user-1",
+                donations: [
+                    {
+                        donation_id: "donation-1",
+                        donor_id: "uuid-1",
+                        project_id: "project-1",
+                        amount: 100.0,
+                        payment_method: "Credit Card",
+                        donation_date: "2024-12-01",
+                        tax_deduction: true,
+                    },
+                ],
+            },
+            {
+                donor_id: "uuid-2",
+                frequency: "MONTHLY",
+                end_user_id: "user-2",
+                donations: [
+                    {
+                        donation_id: "donation-2",
+                        donor_id: "uuid-2",
+                        project_id: "project-2",
+                        amount: 50.0,
+                        payment_method: "PayPal",
+                        donation_date: "2024-12-02",
+                        tax_deduction: false,
+                    },
+                ],
+            },
+            {
+                donor_id: "uuid-3",
+                frequency: "YEARLY",
+                end_user_id: "user-3",
+                donations: [],
+            },
         ]);
     });
 });
@@ -40,6 +116,17 @@ describe("Donor API", () => {
             donor_id: "uuid-1",
             frequency: "ONE_TIME",
             end_user_id: "user-1",
+            donations: [
+                {
+                    donation_id: "donation-1",
+                    donor_id: "uuid-1",
+                    project_id: "project-1",
+                    amount: 100.0,
+                    payment_method: "Credit Card",
+                    donation_date: "2024-12-01",
+                    tax_deduction: true,
+                },
+            ],
         });
     });
 
@@ -63,6 +150,17 @@ describe("Donor API", () => {
             donor_id: "uuid-4",
             frequency: "ONE_TIME",
             end_user_id: "user-4",
+            donations: [
+                {
+                    donation_id: "donation-3",
+                    donor_id: "uuid-4",
+                    project_id: "project-3",
+                    amount: 150.0,
+                    payment_method: "Bank Transfer",
+                    donation_date: "2024-12-03",
+                    tax_deduction: true,
+                },
+            ],
         };
 
         const response = await request(app)
@@ -75,6 +173,17 @@ describe("Donor API", () => {
             donor_id: "uuid-4",
             frequency: "ONE_TIME",
             end_user_id: "user-4",
+            donations: [
+                {
+                    donation_id: "donation-3",
+                    donor_id: "uuid-4",
+                    project_id: "project-3",
+                    amount: 150.0,
+                    payment_method: "Bank Transfer",
+                    donation_date: "2024-12-03",
+                    tax_deduction: true,
+                },
+            ],
         });
     });
 
@@ -96,9 +205,9 @@ describe("Donor API", () => {
 
     it("should return 400 if donor input is invalid (wrong frequency)", async () => {
         const invalidDonor = {
-            donor_id: "uuid-4",
+            donor_id: "uuid-1",
             frequency: "NEVER",
-            end_user_id: "user-4",
+            end_user_id: "user-1",
         };
 
         const response = await request(app)
@@ -114,8 +223,28 @@ describe("Donor API", () => {
         const donorId = "uuid-1";
         const updatedDonorData = {
             donor_id: "uuid-1",
-            frequency: "YEARLY",
+            frequency: "ONE_TIME",
             end_user_id: "user-1",
+            donations: [
+                {
+                    donation_id: "donation-1",
+                    donor_id: "uuid-1",
+                    project_id: "project-1",
+                    amount: 100.0,
+                    payment_method: "Credit Card",
+                    donation_date: "2024-12-01",
+                    tax_deduction: true,
+                },
+                {
+                    donation_id: "donation-2",
+                    donor_id: "uuid-1",
+                    project_id: "project-2",
+                    amount: 10.0,
+                    payment_method: "Credit Card",
+                    donation_date: "2024-12-01",
+                    tax_deduction: false,
+                },
+            ],
         };
 
         const response = await request(app)
@@ -126,8 +255,28 @@ describe("Donor API", () => {
         expect(response.status).toEqual(200);
         expect(response.body).toStrictEqual({
             donor_id: "uuid-1",
-            frequency: "YEARLY",
+            frequency: "ONE_TIME",
             end_user_id: "user-1",
+            donations: [
+                {
+                    donation_id: "donation-1",
+                    donor_id: "uuid-1",
+                    project_id: "project-1",
+                    amount: 100.0,
+                    payment_method: "Credit Card",
+                    donation_date: "2024-12-01",
+                    tax_deduction: true,
+                },
+                {
+                    donation_id: "donation-2",
+                    donor_id: "uuid-1",
+                    project_id: "project-2",
+                    amount: 10.0,
+                    payment_method: "Credit Card",
+                    donation_date: "2024-12-01",
+                    tax_deduction: false,
+                },
+            ],
         });
     });
 
