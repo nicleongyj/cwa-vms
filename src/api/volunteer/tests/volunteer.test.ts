@@ -21,14 +21,15 @@ describe("Volunteer Service", () => {
     });
 });
 
-describe("User API", () => {
+describe("Volunteer API", () => {
     volunteerRouter(app);
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it("should get volunteer correctly", async () => {
+    // Positive test case for `getVolunteerById`
+    it("should retrieve the correct volunteer", async () => {
         const response = await request(app)
             .get("/volunteer/uuid-1")
             .set("Authorization", "Bearer skibidi-toilet");
@@ -37,7 +38,147 @@ describe("User API", () => {
         expect(response.body).toStrictEqual({
             id: "uuid-1",
             name: "Yong Jing",
-            email: "yongjing@gmail.com",
+            email: "yongjingg@gmail.com",
+        });
+    });
+
+    // Negative test case for `getVolunteerById` - Volunteer not found
+    it("should return 404 if volunteer is not found", async () => {
+        const response = await request(app)
+            .get("/volunteer/invalid-id")
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(404);
+        expect(response.body).toStrictEqual({
+            error_code: "VOLN301",
+            message: "Volunteer not found",
+            details: "Volunteer with ID 'invalid-id' does not exist",
+        });
+    });
+
+    // Positive test case for `addVolunteer`
+    it("should add volunteer correctly", async () => {
+        const newVolunteer = {
+            id: "uuid-4",
+            name: "Nicholas",
+            email: "nicholas@gmail.com",
+        };
+
+        const response = await request(app)
+            .post("/volunteer")
+            .send(newVolunteer)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(201);
+        expect(response.body).toStrictEqual({
+            id: "uuid-4",
+            name: "Nicholas",
+            email: "nicholas@gmail.com",
+        });
+    });
+
+    // Negative test case for `addVolunteer` - Missing name
+    it("should return 400 if volunteer input is invalid (missing name)", async () => {
+        const invalidVolunteer = {
+            id: "uuid-3",
+            email: "nic@gmail.com",
+        };
+
+        const response = await request(app)
+            .post("/volunteer")
+            .send(invalidVolunteer)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(400);
+    });
+
+    // Negative test case for `addVolunteer` - Invalid name
+    it("should return 400 if volunteer input is invalid (name is invalid)", async () => {
+        const invalidVolunteer = {
+            id: "uuid-3",
+            name: 123,
+            email: "nic@gmail.com",
+        };
+
+        const response = await request(app)
+            .post("/volunteer")
+            .send(invalidVolunteer)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(400);
+    });
+
+    // Positive test case for `updateVolunteer`
+    it("should update volunteer correctly", async () => {
+        const volunteerId = "uuid-1";
+        const updatedVolunteerData = {
+            id: "uuid-1",
+            name: "Tom",
+            email: "tom@gmail.com",
+        };
+
+        const response = await request(app)
+            .patch(`/volunteer/${volunteerId}`)
+            .send(updatedVolunteerData)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(200);
+        expect(response.body).toStrictEqual({
+            id: "uuid-1",
+            name: "Tom",
+            email: "tom@gmail.com",
+        });
+    });
+
+    // Negative test case for `updateVolunteer` - Volunteer not found
+    it("should return 404 if volunteer to update is not found", async () => {
+        const invalidId = "non-existing-id";
+        const updatedVolunteerData = {
+            id: "uuid-1",
+            name: "Tom",
+            email: "tom@gmail.com",
+        };
+
+        const response = await request(app)
+            .patch(`/volunteer/${invalidId}`)
+            .send(updatedVolunteerData)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(404);
+        expect(response.body).toStrictEqual({
+            error_code: "VOLN301",
+            message: "Volunteer not found",
+            details: `Volunteer with ID '${invalidId}' does not exist`,
+        });
+    });
+
+    // Positive test case for `deleteVolunteer`
+    it("should delete volunteer correctly", async () => {
+        const volunteerId = "uuid-1";
+
+        const response = await request(app)
+            .delete(`/volunteer/${volunteerId}`)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(200);
+        expect(response.body).toStrictEqual({
+            message: "Volunteer deleted!",
+        });
+    });
+
+    // Negative test case for `deleteVolunteer` - Volunteer not found
+    it("should return 404 if volunteer to delete is not found", async () => {
+        const invalidId = "non-existing-id";
+
+        const response = await request(app)
+            .delete(`/volunteer/${invalidId}`)
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(404);
+        expect(response.body).toStrictEqual({
+            error_code: "VOLN301",
+            message: "Volunteer not found",
+            details: `Volunteer with ID '${invalidId}' does not exist`,
         });
     });
 });

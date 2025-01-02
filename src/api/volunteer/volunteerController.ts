@@ -64,7 +64,7 @@ export const updateVolunteer = async (req: Request, res: Response) => {
             res.status(404).json({
                 error_code: "VOLN301",
                 message: "Volunteer not found",
-                details: `Volunteer with ID '${volunteerId} does not exist'`,
+                details: `Volunteer with ID '${volunteerId}' does not exist`,
             });
         } else {
             res.status(200).json(volunteer);
