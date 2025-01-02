@@ -29,12 +29,7 @@ export default (app: Router) => {
     route.post("/", withRequestBodyValidation(VolunteerSchema), addVolunteer);
 
     // Update volunteer
-    route.patch(
-        "/:id",
-        withRequestParamsValidation(GetVolunteerId),
-        withRequestBodyValidation(VolunteerSchema),
-        updateVolunteer,
-    );
+    route.patch("/:id", withRequestParamsValidation(GetVolunteerId), updateVolunteer);
 
     // Delete volunteer
     route.delete("/:id", withRequestParamsValidation(GetVolunteerId), deleteVolunteer);

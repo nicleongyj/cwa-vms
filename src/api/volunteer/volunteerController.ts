@@ -31,8 +31,9 @@ export const getVolunteerById = async (req: Request, res: Response) => {
                 message: "Volunteer not found",
                 details: `Volunteer with ID '${volunteerId}' does not exist`,
             });
+        } else {
+            res.status(200).json(volunteer);
         }
-        res.status(200).json(volunteer);
     } catch {
         res.status(500).json({
             error_code: "VOLN201",
@@ -65,8 +66,9 @@ export const updateVolunteer = async (req: Request, res: Response) => {
                 message: "Volunteer not found",
                 details: `Volunteer with ID '${volunteerId} does not exist'`,
             });
+        } else {
+            res.status(200).json(volunteer);
         }
-        res.status(200).json(volunteer);
     } catch {
         res.status(500).json({
             error_code: "VOLN201",
@@ -87,8 +89,9 @@ export const deleteVolunteer = async (req: Request, res: Response) => {
                 message: "Volunteer not found",
                 details: `Volunteer with ID '${volunteerId}' does not exist`,
             });
+        } else {
+            res.status(200).send({ message: "Volunteer deleted!" });
         }
-        res.status(200).send({ message: "Volunteer deleted!" });
     } catch {
         res.status(500).json({
             error_code: "VOLN201",

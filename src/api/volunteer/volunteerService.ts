@@ -1,15 +1,15 @@
-export const getVolunteerService = async (volunteerId: string) => {
-    if (volunteerId === "uuid-1") {
-        return { id: "uuid-1", name: "Yong Jing", email: "yongjing@gmail.com" };
-    }
-    return { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" };
-};
+const volunteers = [
+    { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
+    { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" },
+];
 
 export const getAllVolunteersService = async () => {
-    return [
-        { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
-        { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" },
-    ];
+    return volunteers;
+};
+
+export const getVolunteerService = async (volunteerId: string) => {
+    const volunteer = volunteers.find((volunteer) => volunteer.id === volunteerId);
+    return volunteer || null;
 };
 
 export const addVolunteerService = async (volunteer: {
@@ -17,22 +17,34 @@ export const addVolunteerService = async (volunteer: {
     name: string;
     email: string;
 }) => {
-    return volunteer;
+    const newVolunteerId = volunteer.id || `uuid-${volunteers.length + 1}`;
+    const newVolunteer = { ...volunteer, id: newVolunteerId };
+    volunteers.push(newVolunteer);
+    return newVolunteer;
 };
 
 export const updateVolunteerService = async (
     volunteerId: string,
     volunteerData: { name?: string; email?: string },
 ) => {
-    if (volunteerId === "uuid-1") {
-        return { id: "uuid-1", name: "Yong Jing", email: "yongjing@gmail.com", ...volunteerData };
+    const volunteerIndex = volunteers.findIndex((volunteer) => volunteer.id === volunteerId);
+
+    if (volunteerIndex === -1) {
+        return null;
     }
-    return { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com", ...volunteerData };
+
+    const updatedVolunteer = { ...volunteers[volunteerIndex], ...volunteerData };
+    volunteers[volunteerIndex] = updatedVolunteer;
+    return updatedVolunteer;
 };
 
 export const deleteVolunteerService = async (volunteerId: string) => {
-    if (volunteerId === "uuid-1") {
-        return { id: "uuid-1", name: "Yong Jing", email: "yongjing@gmail.com" };
+    const volunteerIndex = volunteers.findIndex((volunteer) => volunteer.id === volunteerId);
+
+    if (volunteerIndex === -1) {
+        return null;
     }
-    return { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" };
+    const deletedVolunteer = volunteers.splice(volunteerIndex, 1);
+
+    return deletedVolunteer[0];
 };
