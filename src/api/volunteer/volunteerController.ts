@@ -6,50 +6,94 @@ import {
     deleteVolunteerService,
     updateVolunteerService,
 } from "./volunteerService";
-import { VolunteerSchema } from "./volunteerModel";
-import { z } from "zod";
 
 export const getVolunteers = async (req: Request, res: Response) => {
-    const volunteers = await getAllVolunteersService();
-
-    const validation = z.array(VolunteerSchema).safeParse(volunteers);
-    if (!validation.success) {
-        res.status(400).json({
-            error: "Invalid volunteer data",
-            details: validation.error.format(),
+    try {
+        const volunteers = await getAllVolunteersService();
+        res.status(200).json(volunteers);
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving all volunteer data",
         });
     }
-    res.status(200).json(volunteers);
 };
 
 export const getVolunteerById = async (req: Request, res: Response) => {
-    const volunteerId = String(req.params.id);
-    const volunteer = await getVolunteerService(volunteerId);
+    try {
+        const volunteerId = String(req.params.id);
+        const volunteer = await getVolunteerService(volunteerId);
 
-    const validation = VolunteerSchema.safeParse(volunteer);
-    if (!validation.success) {
-        res.status(400).json({
-            error: "Invalid volunteer data",
-            details: validation.error.format(),
+        if (!volunteer) {
+            res.status(404).json({
+                error_code: "VOLN301",
+                message: "Volunteer not found",
+                details: `Volunteer with ID '${volunteerId}' does not exist`,
+            });
+        }
+        res.status(200).json(volunteer);
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving volunteer by id",
         });
     }
-    res.status(200).json(volunteer);
 };
 
 export const addVolunteer = async (req: Request, res: Response) => {
-    const volunteer = req.body;
-    const result = await addVolunteerService(volunteer);
-    res.status(200).json(result);
+    try {
+        const volunteer = await addVolunteerService(req.body);
+        res.status(201).json(volunteer);
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving adding volunteer",
+        });
+    }
 };
 
 export const updateVolunteer = async (req: Request, res: Response) => {
-    const volunteerId = String(req.params.id);
-    await updateVolunteerService(volunteerId);
-    res.status(200).json({ message: "Volunteer updated!" });
+    try {
+        const volunteerId = String(req.params.id);
+        const volunteer = await updateVolunteerService(volunteerId, req.body);
+        if (!volunteer) {
+            res.status(404).json({
+                error_code: "VOLN301",
+                message: "Volunteer not found",
+                details: `Volunteer with ID '${volunteerId} does not exist'`,
+            });
+        }
+        res.status(200).json(volunteer);
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving updating volunteer",
+        });
+    }
 };
 
 export const deleteVolunteer = async (req: Request, res: Response) => {
-    const volunteerId = String(req.params.id);
-    const result = await deleteVolunteerService(volunteerId);
-    res.status(200).json(result);
+    try {
+        const volunteerId = String(req.params.id);
+        const volunteer = await deleteVolunteerService(volunteerId);
+
+        if (!volunteer) {
+            res.status(404).json({
+                error_code: "VOLN301",
+                message: "Volunteer not found",
+                details: `Volunteer with ID '${volunteerId}' does not exist`,
+            });
+        }
+        res.status(200).send({ message: "Volunteer deleted!" });
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving deleting volunteer",
+        });
+    }
 };

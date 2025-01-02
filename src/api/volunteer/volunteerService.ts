@@ -20,11 +20,14 @@ export const addVolunteerService = async (volunteer: {
     return volunteer;
 };
 
-export const updateVolunteerService = async (volunteerId: string) => {
+export const updateVolunteerService = async (
+    volunteerId: string,
+    volunteerData: { name?: string; email?: string },
+) => {
     if (volunteerId === "uuid-1") {
-        return { id: "uuid-1", name: "Yong Jing", email: "yongjing@gmail.com" };
+        return { id: "uuid-1", name: "Yong Jing", email: "yongjing@gmail.com", ...volunteerData };
     }
-    return { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" };
+    return { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com", ...volunteerData };
 };
 
 export const deleteVolunteerService = async (volunteerId: string) => {
