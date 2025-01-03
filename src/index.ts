@@ -7,7 +7,7 @@ const app: Express = express();
 const port = process.env.SERVER_PORT;
 
 if (port === undefined) {
-  throw new Error(`Env variable SERVER_PORT undefined`);
+    throw new Error(`Env variable SERVER_PORT undefined`);
 }
 
 app.use(cors());

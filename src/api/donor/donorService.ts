@@ -1,4 +1,14 @@
-let donors = [
+type Donation = {
+    donation_id: string;
+    donor_id: string;
+    project_id: string;
+    amount: number;
+    payment_method: string;
+    donation_date: string;
+    tax_deduction: boolean;
+};
+
+const donors = [
     {
         donor_id: "uuid-1",
         frequency: "ONE_TIME",
@@ -52,7 +62,7 @@ export const addDonorService = async (donor: {
     donor_id: string;
     frequency: string;
     end_user_id: string;
-    donations: Array<any>; // Add donations array
+    donations: Array<Donation>; // Add donations array
 }) => {
     const newDonorId = donor.donor_id || `uuid-${donors.length + 1}`;
     const newDonor = { ...donor, donor_id: newDonorId };

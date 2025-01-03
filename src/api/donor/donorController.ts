@@ -7,7 +7,6 @@ import {
     deleteDonorService,
 } from "./donorService";
 import { DonorSchema } from "./donorModel";
-import { z } from "zod";
 
 const createErrorResponse = (errorCode: string, message: string, details: string) => ({
     error_code: errorCode,
@@ -20,7 +19,7 @@ export const getDonors = async (req: Request, res: Response) => {
     try {
         const donors = await getAllDonorsService();
         res.status(200).json(donors);
-    } catch (error) {
+    } catch {
         res.status(500).json(
             createErrorResponse(
                 "DNR201",
@@ -47,7 +46,7 @@ export const getDonorById = async (req: Request, res: Response) => {
         } else {
             res.status(200).json(donor);
         }
-    } catch (error) {
+    } catch {
         res.status(500).json(
             createErrorResponse(
                 "DNR201",
@@ -73,7 +72,7 @@ export const addDonor = async (req: Request, res: Response) => {
             const donor = await addDonorService(req.body);
             res.status(201).json(donor);
         }
-    } catch (error) {
+    } catch {
         console.log("error");
         res.status(500).json(
             createErrorResponse(
@@ -109,7 +108,7 @@ export const updateDonor = async (req: Request, res: Response) => {
         } else {
             res.status(200).json(donor);
         }
-    } catch (error) {
+    } catch {
         res.status(500).json(
             createErrorResponse(
                 "DNR201",
@@ -136,7 +135,7 @@ export const deleteDonor = async (req: Request, res: Response) => {
         } else {
             res.status(200).send({ message: "Donor deleted!" });
         }
-    } catch (error) {
+    } catch {
         res.status(500).json(
             createErrorResponse(
                 "DNR201",

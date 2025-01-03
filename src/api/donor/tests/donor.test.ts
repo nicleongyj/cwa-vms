@@ -11,47 +11,6 @@ jest.mock("../../../common/middleware/withAuth", () => {
     };
 });
 
-let donors = [
-    {
-        donor_id: "uuid-1",
-        frequency: "ONE_TIME",
-        end_user_id: "user-1",
-        donations: [
-            {
-                donation_id: "donation-1",
-                donor_id: "uuid-1",
-                project_id: "project-1",
-                amount: 100.0,
-                payment_method: "Credit Card",
-                donation_date: "2024-12-01",
-                tax_deduction: true,
-            },
-        ],
-    },
-    {
-        donor_id: "uuid-2",
-        frequency: "MONTHLY",
-        end_user_id: "user-2",
-        donations: [
-            {
-                donation_id: "donation-2",
-                donor_id: "uuid-2",
-                project_id: "project-2",
-                amount: 50.0,
-                payment_method: "PayPal",
-                donation_date: "2024-12-02",
-                tax_deduction: false,
-            },
-        ],
-    },
-    {
-        donor_id: "uuid-3",
-        frequency: "YEARLY",
-        end_user_id: "user-3",
-        donations: [],
-    },
-];
-
 describe("Donor Service", () => {
     it("should get all donors correctly", async () => {
         const donors = await getAllDonorsService();
