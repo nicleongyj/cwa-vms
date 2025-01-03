@@ -1,11 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import { NextFunction, Response } from "express";
+import { AuthRequest } from "../types/authRequest";
+import axios, { isAxiosError } from "axios";
 
-interface CustomRequest extends Request {
-    user?: string | JwtPayload;
-}
-
-export default (req: CustomRequest, res: Response, next: NextFunction): void => {
+export default async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers["authorization"];
 
     if (!authHeader) {
@@ -23,15 +20,19 @@ export default (req: CustomRequest, res: Response, next: NextFunction): void => 
         return;
     }
 
-    let user: JwtPayload | string;
+    const graphEndpoint = "https://graph.microsoft.com/v1.0/me";
     try {
-        user = jwt.verify(token, process.env.SUPABASE_JWT_SECRET ?? "");
+        const response = await axios.get(graphEndpoint, { headers: { Authorization: authHeader } });
+        req.user = await response.data;
     } catch (error) {
-        console.log(error);
+        if (isAxiosError(error)) {
+            console.error(`[auth] Error fetching user: ${JSON.stringify(error.response?.data)}`);
+        } else {
+            console.error(`[auth] Error fetching user: ${error}`);
+        }
         res.status(403).json({ message: "Invalid or expired token" });
         return;
     }
-    req.user = user;
 
     next();
 };

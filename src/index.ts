@@ -4,7 +4,11 @@ import cors from "cors";
 import api from "./api";
 
 const app: Express = express();
-const port = process.env.PORT || 8000;
+const port = process.env.SERVER_PORT;
+
+if (port === undefined) {
+    throw new Error(`Env variable SERVER_PORT undefined`);
+}
 
 app.use(cors());
 

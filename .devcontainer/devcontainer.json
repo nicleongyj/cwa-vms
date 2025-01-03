@@ -6,7 +6,7 @@
     "mounts": ["type=bind,source=/home/${localEnv:USER}/.ssh,target=/root/.ssh,readonly"],
     "customizations": {
         "vscode": {
-            "extensions": ["ms-azuretools.vscode-azurestaticwebapps", "esbenp.prettier-vscode"]
+            "extensions": ["ms-azuretools.vscode-azureappservice", "esbenp.prettier-vscode"]
         }
     }
 }
