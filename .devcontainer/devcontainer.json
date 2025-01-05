@@ -1,5 +1,5 @@
 {
-    "name": "cwa-dev-container",
+    "name": "cwa-admin-backend",
     "dockerComposeFile": "../docker-compose-workspace.yml",
     "service": "workspace",
     "workspaceFolder": "/app",

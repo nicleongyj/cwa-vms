@@ -47,4 +47,3 @@ jobs:
           app-name: 'cwa-admin-backend-dev'
           slot-name: 'Production'
           package: .
- 
