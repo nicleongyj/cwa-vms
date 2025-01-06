@@ -12,3 +12,154 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
+// Enum Definitions
+
+enum VolunteerDuration {
+  AD_HOC
+  LONG_TERM
+  SHORT_TERM
+}
+
+enum VolunteerInterest {
+  BEFRIENDER
+  EVENT_SUPPORT
+  FUNDRAISER
+}
+
+enum DonationFrequency {
+  ONE_TIME
+  MONTHLY
+  YEARLY
+}
+
+enum PaymentMethod {
+  VISA
+  MASTERCARD
+  CHEQUE
+  CASH
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum AssignmentStatus {
+  ACCEPT
+  REJECT
+  RECONSIDER
+}
+
+// Model Definitions
+model GeneralUser {
+  user_id    String  @id @default(uuid())  
+  name       String
+  email      String? @unique
+  created_at DateTime @default(now())
+
+  // Relations
+  EndUser    EndUser?
+  Staff      Staff?
+}
+
+model EndUser {
+  end_user_id     String      @id @default(uuid())
+  general_user_id String      @unique
+  contact_number  String?
+  address         String?
+  nationality     String?
+  ethnicity       String?
+  gender          String?
+  dob             DateTime?
+  occupation      String?
+  created_at      DateTime     @default(now())
+  
+  // Relations
+  general_user    GeneralUser @relation(fields: [general_user_id], references: [user_id])
+  Volunteer       Volunteer?
+  Donor           Donor?
+}
+
+model Staff {
+  staff_id        String      @id @default(uuid())
+  general_user_id String      @unique
+
+  general_user    GeneralUser  @relation(fields: [general_user_id], references: [user_id])
+  superadmin      Superadmin?
+}
+
+model Superadmin {
+  superadmin_id   String      @id @default(uuid())
+  staff_id        String      @unique
+
+  staff           Staff     @relation(fields: [staff_id], references: [staff_id])
+}
+
+model Volunteer {
+  volunteer_id    String      @id @default(uuid())
+  end_user_id     String      @unique
+  languages_spoken  String?
+  education         String?
+  duration          VolunteerDuration
+  interest          VolunteerInterest
+  availability      String?
+  expertise         String?
+  volunteering_hours Int?
+  past_experience   Boolean           @default(false)
+  // Relations
+  end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])
+  Assignments        Assignment[]
+}
+
+model Donor {
+  donor_id        String      @id @default(uuid())
+  frequency        DonationFrequency
+  end_user_id     String      @unique
+
+  // Relations
+  end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])
+  donations        Donation[]
+}
+
+model Project {
+  project_id        String      @id @default(uuid())
+  project_name      String
+  description       String?
+  skills_required   String?
+  commitment_duration String?
+  status            ProjectStatus   @default(ACTIVE)
+  assigned_volunteers Json?
+
+  // Relations
+  donations         Donation[]
+  Assignments        Assignment[]
+}
+
+model Donation {
+  donation_id     String  @id @default(uuid())
+  donor_id       String      @unique
+  project_id      String    @unique
+  amount           Decimal         @default(0.00)
+  payment_method   PaymentMethod?
+  donation_date    DateTime?
+  tax_deduction    Boolean?
+
+  donor            Donor           @relation(fields: [donor_id], references: [donor_id])
+  project          Project?        @relation(fields: [project_id], references: [project_id])
+}
+
+model Assignment {
+  assignment_id    String  @id @default(uuid())
+  volunteer_id     String      @unique
+  project_id       String
+  start_date       DateTime
+  end_date         DateTime
+  status           AssignmentStatus @default(REJECT)
+  volunteer_role   String
+
+  volunteer        Volunteer       @relation(fields: [volunteer_id], references: [volunteer_id])
+  project          Project         @relation(fields: [project_id], references: [project_id])
+}
+
+
