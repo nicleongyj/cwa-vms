@@ -111,10 +111,10 @@ export const searchVolunteer = async (req: Request, res: Response) => {
                 message: "Name query parameter is required",
                 details: "Please provide a 'name' query parameter",
             });
+        } else {
+            const volunteers = await getVolunteersByNameService(nameQuery);
+            res.status(200).json(volunteers);
         }
-
-        const volunteers = await getVolunteersByNameService(nameQuery);
-        res.status(200).json(volunteers);
     } catch {
         res.status(500).json({
             error_code: "VOLN201",
