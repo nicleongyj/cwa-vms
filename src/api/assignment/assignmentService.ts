@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import {
     AssignmentCleanOutput,
     AssignmentCreate,
@@ -12,8 +11,7 @@ import {
     AssignmentUpdate,
     UpdateAssignmentSchema,
 } from "./assignmentModel";
-
-const prisma = new PrismaClient();
+import prisma from "../../common/utils/prisma";
 
 export const addAssignmentService = async (assignment: AssignmentCreate) => {
     try {

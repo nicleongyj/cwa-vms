@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import {
     VolunteerSchema,
     Volunteer,
@@ -9,8 +8,7 @@ import {
     VolunteerDelete,
 } from "./volunteerModel";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
+import prisma from "../../common/utils/prisma";
 
 export const getAllVolunteersService = async () => {
     try {
