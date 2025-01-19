@@ -2,10 +2,15 @@ import { PrismaClient } from "@prisma/client";
 import {
     AssignmentCleanOutput,
     AssignmentCreate,
+    AssignmentDelete,
     AssignmentFetch,
     AssignmentIdSchema,
     AssignmentMapType,
     AssignmentSchema,
+    AssignmentStatus,
+    AssignmentStatusUpdate,
+    AssignmentUpdate,
+    UpdateAssignmentSchema,
 } from "./assignmentModel";
 
 const prisma = new PrismaClient();
@@ -103,5 +108,114 @@ export const getAssignmentByIdService = async (assignmentId: AssignmentFetch) =>
     } catch (error) {
         console.error("Error in getAssignmentByIdService:", error);
         throw new Error(`Failed to fetch assignment: ${error}`);
+    }
+};
+
+export const deleteAssignmentService = async (assignmentId: AssignmentDelete) => {
+    try {
+        // Validate assignment ID format
+        const validId = AssignmentIdSchema.parse(assignmentId);
+
+        // Check if the assignment exists
+        const existingAssignment = await prisma.assignment.findUnique({
+            where: { assignment_id: validId.id },
+        });
+
+        if (!existingAssignment) {
+            throw new Error(`Assignment with ID '${validId.id}' not found.`);
+        }
+
+        // Delete the assignment
+        const deletedAssignment = await prisma.assignment.delete({
+            where: { assignment_id: validId.id },
+        });
+
+        return deletedAssignment;
+    } catch (error) {
+        console.error("Error in deleteAssignmentService:", error);
+        throw new Error(`Failed to delete assignment: ${error}`);
+    }
+};
+
+const updateAssignmentStatus = async (
+    assignmentId: AssignmentStatusUpdate,
+    status: AssignmentStatus,
+) => {
+    try {
+        console.log(`Updating assignment ${assignmentId} to status: ${status}`);
+
+        // Validate assignment ID format
+        const validId = AssignmentIdSchema.parse(assignmentId);
+
+        // Check if the assignment exists
+        const existingAssignment = await prisma.assignment.findUnique({
+            where: { assignment_id: validId.id },
+        });
+
+        if (!existingAssignment) {
+            throw new Error(`Assignment with ID '${validId.id}' not found.`);
+        }
+
+        // Update assignment status
+        const updatedAssignment = await prisma.assignment.update({
+            where: { assignment_id: validId.id },
+            data: { status },
+        });
+
+        console.log(`Assignment status updated to ${status}:`, updatedAssignment);
+        return updatedAssignment;
+    } catch (error) {
+        console.error(`Error updating assignment to ${status}:`, error);
+        throw new Error(`Failed to update assignment status: ${error}`);
+    }
+};
+
+// Service to accept an assignment
+export const acceptAssignmentService = async (assignmentId: AssignmentStatusUpdate) => {
+    return updateAssignmentStatus(assignmentId, "ACCEPT");
+};
+
+// Service to reject an assignment
+export const rejectAssignmentService = async (assignmentId: AssignmentStatusUpdate) => {
+    return updateAssignmentStatus(assignmentId, "REJECT");
+};
+
+export const reconsiderAssignmentService = async (assignmentId: AssignmentStatusUpdate) => {
+    return updateAssignmentStatus(assignmentId, "RECONSIDER");
+};
+
+export const updateAssignmentService = async (
+    assignmentId: string,
+    updateData: Partial<AssignmentUpdate>,
+) => {
+    try {
+        console.log(`Updating assignment with ID: ${assignmentId}`);
+
+        // Validate assignment ID format
+        const validId = AssignmentIdSchema.parse({ id: assignmentId });
+
+        // Validate update fields
+        const validatedData = UpdateAssignmentSchema.parse(updateData);
+
+        // Check if assignment exists
+        const existingAssignment = await prisma.assignment.findUnique({
+            where: { assignment_id: validId.id },
+        });
+
+        if (!existingAssignment) {
+            throw new Error(`Assignment with ID '${validId.id}' not found.`);
+        }
+
+        // Update assignment (excluding `status` and `volunteer_id`)
+        const updatedAssignment = await prisma.assignment.update({
+            where: { assignment_id: validId.id },
+            data: validatedData,
+        });
+
+        console.log("Assignment updated successfully:", updatedAssignment);
+        return updatedAssignment;
+    } catch (error) {
+        console.error("Error in updateAssignmentService:", error);
+        throw new Error(`Failed to update assignment: ${error}`);
     }
 };

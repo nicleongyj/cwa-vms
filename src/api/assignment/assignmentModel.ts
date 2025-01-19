@@ -2,6 +2,7 @@ import { z } from "zod";
 
 // Define Enum for Assignment Status
 export const AssignmentStatusEnum = z.enum(["ACCEPT", "REJECT", "RECONSIDER"]);
+export type AssignmentStatus = z.infer<typeof AssignmentStatusEnum>;
 
 // Define Assignment Schema
 export const AssignmentSchema = z.object({
@@ -15,10 +16,20 @@ export const AssignmentSchema = z.object({
     volunteer_role: z.string(),
 });
 
+export const UpdateAssignmentSchema = z
+    .object({
+        // TODO: Change id to uuid
+        project_id: z.string().optional(),
+        start_date: z.string().datetime().optional(),
+        end_date: z.string().datetime().optional(),
+        volunteer_role: z.string().min(1).optional(),
+    })
+    .partial();
+
 export type AssignmentMapType = {
     assignment_id: string;
     start_date: Date; // Prisma returns a Date object
-    status: "ACCEPT" | "REJECT" | "RECONSIDER";
+    status: AssignmentStatus;
     volunteer?: {
         end_user?: {
             general_user?: {
@@ -34,7 +45,7 @@ export type AssignmentCleanOutput = {
     name: string;
     age: number | null | undefined;
     submission_date: Date;
-    approval_status: "ACCEPT" | "REJECT" | "RECONSIDER";
+    approval_status: AssignmentStatus;
 };
 
 // Infer TypeScript type from the schema
@@ -45,5 +56,8 @@ export const AssignmentIdSchema = z.object({
     id: z.string(),
 });
 
-export type AssignmentUpdate = z.infer<typeof AssignmentIdSchema>;
+export type AssignmentUpdate = z.infer<typeof UpdateAssignmentSchema>;
+
+export type AssignmentStatusUpdate = z.infer<typeof AssignmentIdSchema>;
 export type AssignmentFetch = z.infer<typeof AssignmentIdSchema>;
+export type AssignmentDelete = z.infer<typeof AssignmentIdSchema>;
