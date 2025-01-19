@@ -1,11 +1,5 @@
 import { Router } from "express";
-import {
-    getVolunteers,
-    getVolunteerById,
-    addVolunteer,
-    updateVolunteer,
-    deleteVolunteer,
-} from "./volunteerController";
+import { getVolunteers, getVolunteerById, addVolunteer } from "./volunteerController";
 import {
     withRequestBodyValidation,
     withRequestParamsValidation,
@@ -28,9 +22,9 @@ export default (app: Router) => {
     // Add volunteer
     route.post("/", withRequestBodyValidation(VolunteerSchema), addVolunteer);
 
-    // Update volunteer
-    route.patch("/:id", withRequestParamsValidation(GetVolunteerId), updateVolunteer);
+    // // Update volunteer
+    // route.patch("/:id", withRequestParamsValidation(GetVolunteerId), updateVolunteer);
 
-    // Delete volunteer
-    route.delete("/:id", withRequestParamsValidation(GetVolunteerId), deleteVolunteer);
+    // // Delete volunteer
+    // route.delete("/:id", withRequestParamsValidation(GetVolunteerId), deleteVolunteer);
 };
