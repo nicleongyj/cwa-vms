@@ -1,12 +1,16 @@
 import { PrismaClient } from "@prisma/client";
-import { VolunteerSchema, Volunteer, GetVolunteerId, VolunteerFetch } from "./volunteerModel";
+import {
+    VolunteerSchema,
+    Volunteer,
+    VolunteerId,
+    VolunteerFetch,
+    VolunteerUpdate,
+    UpdateVolunteer,
+    VolunteerDelete,
+} from "./volunteerModel";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
-
-// const volunteers = [
-//     { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
-//     { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" },
-// ];
 
 export const getAllVolunteersService = async () => {
     try {
@@ -22,7 +26,7 @@ export const getAllVolunteersService = async () => {
 export const getVolunteerService = async (volunteerId: VolunteerFetch) => {
     try {
         // Validate input using Zod
-        GetVolunteerId.parse(volunteerId);
+        VolunteerId.parse(volunteerId);
 
         // Fetch volunteer from the database
         const volunteer = await prisma.volunteer.findUnique({
@@ -71,28 +75,61 @@ export const addVolunteerService = async (volunteer: Volunteer) => {
     }
 };
 
-// export const updateVolunteerService = async (
-//     volunteerId: string,
-//     volunteerData: { name?: string; email?: string },
-// ) => {
-//     const volunteerIndex = volunteers.findIndex((volunteer) => volunteer.id === volunteerId);
+export const updateVolunteerService = async (
+    volunteerId: string,
+    volunteerData: Partial<VolunteerUpdate>, // Allows updating only some fields
+) => {
+    try {
+        // Validate ID format
+        const validId = z.string().uuid().parse(volunteerId);
 
-//     if (volunteerIndex === -1) {
-//         return null;
-//     }
+        // Validate update data (must match the VolunteerSchema structure)
+        const validatedData = UpdateVolunteer.parse(volunteerData);
 
-//     const updatedVolunteer = { ...volunteers[volunteerIndex], ...volunteerData };
-//     volunteers[volunteerIndex] = updatedVolunteer;
-//     return updatedVolunteer;
-// };
+        // Check if the volunteer exists in the database
+        const existingVolunteer = await prisma.volunteer.findUnique({
+            where: { volunteer_id: validId },
+        });
 
-// export const deleteVolunteerService = async (volunteerId: string) => {
-//     const volunteerIndex = volunteers.findIndex((volunteer) => volunteer.id === volunteerId);
+        if (!existingVolunteer) {
+            throw new Error(`Volunteer with ID '${validId}' not found.`);
+        }
 
-//     if (volunteerIndex === -1) {
-//         return null;
-//     }
-//     const deletedVolunteer = volunteers.splice(volunteerIndex, 1);
+        // Perform the update
+        const updatedVolunteer = await prisma.volunteer.update({
+            where: { volunteer_id: validId },
+            data: validatedData,
+        });
 
-//     return deletedVolunteer[0];
-// };
+        return updatedVolunteer;
+    } catch (error) {
+        console.error("Error in updateVolunteerService:", error);
+        throw new Error(`Failed to update volunteer: ${error}`);
+    }
+};
+
+export const deleteVolunteerService = async (volunteerId: VolunteerDelete) => {
+    try {
+        // Validate ID format
+        const validId = VolunteerId.parse(volunteerId);
+
+        // Check if the volunteer exists
+        const existingVolunteer = await prisma.volunteer.findUnique({
+            where: { volunteer_id: validId.id },
+        });
+
+        if (!existingVolunteer) {
+            throw new Error(`Volunteer with ID '${validId}' not found.`);
+        }
+
+        // Delete the volunteer
+        const deletedVolunteer = await prisma.volunteer.delete({
+            where: { volunteer_id: validId.id },
+        });
+
+        return deletedVolunteer;
+    } catch (error) {
+        console.error("Error in deleteVolunteerService:", error);
+        throw new Error(`Failed to delete volunteer: ${error}`);
+    }
+};
