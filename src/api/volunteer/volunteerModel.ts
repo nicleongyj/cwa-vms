@@ -5,6 +5,7 @@ export const VolunteerDurationEnum = z.enum(["AD_HOC", "LONG_TERM", "SHORT_TERM"
 export const VolunteerInterestEnum = z.enum(["BEFRIENDER", "EVENT_SUPPORT", "FUNDRAISER"]);
 
 export const VolunteerSchema = z.object({
+    // TODO: change id to uuid
     end_user_id: z.string(),
     languages_spoken: z.string().optional(),
     education: z.string().optional(),
