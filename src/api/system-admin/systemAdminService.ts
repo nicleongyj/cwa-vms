@@ -1,7 +1,7 @@
 import {
     SystemAdmin,
     SystemAdminPermissions,
-    CreateSystemAdminSchema,
+    SystemAdminSchema,
     UpdatePermissionsSchema,
 } from "./systemAdminModel";
 
@@ -9,7 +9,7 @@ import {
 const systemAdmins: SystemAdmin[] = [];
 
 export const createSystemAdmin = async (data: SystemAdmin): Promise<SystemAdmin> => {
-    const validatedData = CreateSystemAdminSchema.parse(data);
+    const validatedData = SystemAdminSchema.parse(data);
 
     // Check if admin already exists based on email ?
     const existingAdmin = systemAdmins.find((admin) => admin.email === validatedData.email);

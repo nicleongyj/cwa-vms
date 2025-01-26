@@ -24,7 +24,6 @@ export const SystemAdminSchema = z.object({
 export type SystemAdmin = z.infer<typeof SystemAdminSchema>;
 export type SystemAdminPermissions = z.infer<typeof SystemAdminPermissionsSchema>;
 
-export const CreateSystemAdminSchema = SystemAdminSchema.omit({ id: true });
 export const UpdatePermissionsSchema = z.object({
     userId: z.string(),
     permissions: SystemAdminPermissionsSchema,
