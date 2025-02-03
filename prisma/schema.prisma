@@ -21,12 +21,6 @@ enum VolunteerDuration {
   SHORT_TERM
 }
 
-enum VolunteerInterest {
-  BEFRIENDER
-  EVENT_SUPPORT
-  FUNDRAISER
-}
-
 enum DonationFrequency {
   ONE_TIME
   MONTHLY
@@ -96,20 +90,30 @@ model Superadmin {
   staff           Staff     @relation(fields: [staff_id], references: [staff_id])
 }
 
+model VolunteerInterest {
+  id      String       @id @default(uuid())
+  name    String       @unique
+
+  // Relations
+  volunteers Volunteer[]
+}
+
 model Volunteer {
-  volunteer_id    String      @id @default(uuid())
-  end_user_id     String      @unique
-  languages_spoken  String?
-  education         String?
-  duration          VolunteerDuration
-  interest          VolunteerInterest
-  availability      String?
-  expertise         String?
-  volunteering_hours Int?
-  past_experience   Boolean           @default(false)
+  volunteer_id        String      @id @default(uuid())
+  end_user_id         String      @unique
+  languages_spoken    String?
+  education           String?
+  duration            VolunteerDuration
+  interest_id         String?
+  availability        String?
+  expertise           String?
+  volunteering_hours  Int?
+  past_experience     Boolean      @default(false)
+
   // Relations
   end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])
   Assignments        Assignment[]
+  interest           VolunteerInterest? @relation(fields: [interest_id], references: [id])
 }
 
 model Donor {

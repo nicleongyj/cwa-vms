@@ -10,7 +10,7 @@ export const VolunteerSchema = z.object({
     languages_spoken: z.string().optional(),
     education: z.string().optional(),
     duration: VolunteerDurationEnum,
-    interest: VolunteerInterestEnum,
+    interest: z.string(),
     availability: z.string().optional(),
     expertise: z.string().optional(),
     volunteering_hours: z.number().optional(),
@@ -21,7 +21,18 @@ export const UpdateVolunteerSchema = z.object({
     languages_spoken: z.string().optional(),
     education: z.string().optional(),
     duration: VolunteerDurationEnum,
-    interest: VolunteerInterestEnum,
+    interest_id: z.string(),
+    availability: z.string().optional(),
+    expertise: z.string().optional(),
+    volunteering_hours: z.number().optional(),
+    past_experience: z.boolean().default(false),
+});
+
+export const UpdateVolunteerRequest = z.object({
+    languages_spoken: z.string().optional(),
+    education: z.string().optional(),
+    duration: VolunteerDurationEnum,
+    interest: z.string(),
     availability: z.string().optional(),
     expertise: z.string().optional(),
     volunteering_hours: z.number().optional(),
@@ -29,7 +40,8 @@ export const UpdateVolunteerSchema = z.object({
 });
 
 export type Volunteer = z.infer<typeof VolunteerSchema>;
-export type VolunteerUpdate = z.infer<typeof UpdateVolunteerSchema>;
+export type VolunteerUpdate = z.infer<typeof UpdateVolunteerRequest>;
+export type VolunteerUpdateSchema = z.infer<typeof UpdateVolunteerSchema>;
 
 export const UpdateVolunteer = UpdateVolunteerSchema.partial();
 

@@ -4,8 +4,9 @@ import {
     VolunteerId,
     VolunteerFetch,
     VolunteerUpdate,
-    UpdateVolunteer,
     VolunteerDelete,
+    UpdateVolunteerSchema,
+    UpdateVolunteerRequest,
 } from "./volunteerModel";
 import { z } from "zod";
 import prisma from "../../common/utils/prisma";
@@ -55,9 +56,32 @@ export const addVolunteerService = async (volunteer: Volunteer) => {
         const validatedData = VolunteerSchema.parse(volunteer);
         console.log("Validated Data:", validatedData);
 
+        // Check if the volunteer interest already exists
+        let volunteerInterest = await prisma.volunteerInterest.findUnique({
+            where: { name: validatedData.interest },
+        });
+
+        // If not found, create a new interest entry
+        if (!volunteerInterest) {
+            volunteerInterest = await prisma.volunteerInterest.create({
+                data: { name: validatedData.interest },
+            });
+            console.log("New Volunteer Interest Created:", volunteerInterest);
+        }
+
         // Create volunteer in the database
         const newVolunteer = await prisma.volunteer.create({
-            data: validatedData,
+            data: {
+                end_user_id: validatedData.end_user_id,
+                languages_spoken: validatedData.languages_spoken,
+                education: validatedData.education,
+                duration: validatedData.duration,
+                interest_id: volunteerInterest.id, // Attach interest_id instead of name
+                availability: validatedData.availability,
+                expertise: validatedData.expertise,
+                volunteering_hours: validatedData.volunteering_hours,
+                past_experience: validatedData.past_experience,
+            },
         });
 
         console.log("Volunteer Created Successfully:", newVolunteer);
@@ -82,7 +106,9 @@ export const updateVolunteerService = async (
         const validId = z.string().uuid().parse(volunteerId);
 
         // Validate update data (must match the VolunteerSchema structure)
-        const validatedData = UpdateVolunteer.parse(volunteerData);
+        const validatedData = UpdateVolunteerRequest.parse(volunteerData);
+
+        console.log(validatedData);
 
         // Check if the volunteer exists in the database
         const existingVolunteer = await prisma.volunteer.findUnique({
@@ -93,10 +119,35 @@ export const updateVolunteerService = async (
             throw new Error(`Volunteer with ID '${validId}' not found.`);
         }
 
+        const {
+            interest,
+            ...updatedData
+        }: { interest?: string } & Partial<z.infer<typeof UpdateVolunteerSchema>> = validatedData;
+
+        // If interest is provided, check if it exists or create a new one
+        if (validatedData.interest) {
+            let volunteerInterest = await prisma.volunteerInterest.findUnique({
+                where: { name: interest },
+            });
+
+            // Create new VolunteerInterest if not found
+            if (!volunteerInterest) {
+                volunteerInterest = await prisma.volunteerInterest.create({
+                    data: { name: interest },
+                });
+                console.log("New Volunteer Interest Created:", volunteerInterest);
+            }
+
+            // Attach interest_id to updatedData instead of the interest name
+            updatedData.interest_id = volunteerInterest.id;
+            console.log("After update interest id");
+            console.log(updatedData);
+        }
+
         // Perform the update
         const updatedVolunteer = await prisma.volunteer.update({
             where: { volunteer_id: validId },
-            data: validatedData,
+            data: updatedData,
         });
 
         return updatedVolunteer;
