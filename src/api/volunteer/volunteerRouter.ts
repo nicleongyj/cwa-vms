@@ -5,6 +5,7 @@ import {
     addVolunteer,
     updateVolunteer,
     deleteVolunteer,
+    searchVolunteer,
 } from "./volunteerController";
 import {
     withRequestBodyValidation,
@@ -21,6 +22,9 @@ export default (app: Router) => {
 
     // GET all volunteers
     route.get("/", getVolunteers);
+
+    // Search volunteer
+    route.get("/search", searchVolunteer);
 
     // Get volunteer by ID
     route.get("/:id", withRequestParamsValidation(GetVolunteerId), getVolunteerById);

@@ -5,6 +5,7 @@ import {
     addVolunteerService,
     deleteVolunteerService,
     updateVolunteerService,
+    getVolunteersByNameService,
 } from "./volunteerService";
 
 export const getVolunteers = async (req: Request, res: Response) => {
@@ -91,6 +92,28 @@ export const deleteVolunteer = async (req: Request, res: Response) => {
             });
         } else {
             res.status(200).send({ message: "Volunteer deleted!" });
+        }
+    } catch {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: "Error while retrieving deleting volunteer",
+        });
+    }
+};
+
+export const searchVolunteer = async (req: Request, res: Response) => {
+    try {
+        const nameQuery = String(req.query.name || "").toLowerCase();
+        if (!nameQuery) {
+            res.status(400).json({
+                error_code: "VOLN401",
+                message: "Name query parameter is required",
+                details: "Please provide a 'name' query parameter",
+            });
+        } else {
+            const volunteers = await getVolunteersByNameService(nameQuery);
+            res.status(200).json(volunteers);
         }
     } catch {
         res.status(500).json({

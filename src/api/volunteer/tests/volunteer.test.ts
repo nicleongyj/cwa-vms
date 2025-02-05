@@ -17,6 +17,7 @@ describe("Volunteer Service", () => {
         expect(users).toStrictEqual([
             { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
             { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" },
+            { id: "uuid-3", name: "Jing", email: "jing@gmail.com" },
         ]);
     });
 });
@@ -53,6 +54,43 @@ describe("Volunteer API", () => {
             error_code: "VOLN301",
             message: "Volunteer not found",
             details: "Volunteer with ID 'invalid-id' does not exist",
+        });
+    });
+
+    // Positive test case for 'searchVolunteer'
+    it("should retrieve volunteers by name", async () => {
+        const response = await request(app)
+            .get("/volunteer/search?name=Jing")
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(200);
+        expect(response.body).toStrictEqual([
+            { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
+            { id: "uuid-3", name: "Jing", email: "jing@gmail.com" },
+        ]);
+    });
+
+    // Negative test case for `searchVolunteer` - No match found
+    it("should return an empty array if no volunteer matches the search query", async () => {
+        const response = await request(app)
+            .get("/volunteer/search?name=null")
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(200);
+        expect(response.body).toStrictEqual([]);
+    });
+
+    // Negative test case for `searchVolunteer` - Missing query parameter
+    it("should return 400 if the query parameter is missing", async () => {
+        const response = await request(app)
+            .get("/volunteer/search")
+            .set("Authorization", "Bearer skibidi-toilet");
+
+        expect(response.status).toEqual(400);
+        expect(response.body).toStrictEqual({
+            error_code: "VOLN401",
+            message: "Name query parameter is required",
+            details: "Please provide a 'name' query parameter",
         });
     });
 

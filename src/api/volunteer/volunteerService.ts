@@ -1,6 +1,7 @@
 const volunteers = [
     { id: "uuid-1", name: "Yong Jing", email: "yongjingg@gmail.com" },
     { id: "uuid-2", name: "Zeyu", email: "zeyu@gmail.com" },
+    { id: "uuid-3", name: "Jing", email: "jing@gmail.com" },
 ];
 
 export const getAllVolunteersService = async () => {
@@ -47,4 +48,8 @@ export const deleteVolunteerService = async (volunteerId: string) => {
     const deletedVolunteer = volunteers.splice(volunteerIndex, 1);
 
     return deletedVolunteer[0];
+};
+
+export const getVolunteersByNameService = async (nameQuery: string) => {
+    return volunteers.filter((volunteer) => volunteer.name.toLowerCase().includes(nameQuery));
 };
