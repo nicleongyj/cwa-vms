@@ -5,6 +5,8 @@ import volunteerRouter from "./volunteer/volunteerRouter";
 import donorRouter from "./donor/donorRouter";
 import projectRouter from "./project/projectRouter";
 import devRouter from "./dev/devRouter";
+import assignmentRouter from "./assignment/assignmentRouter";
+import volunteerInterestRouter from "./volunteerInterest/volunteerInterestRouter";
 
 export default () => {
     const app = Router();
@@ -14,6 +16,7 @@ export default () => {
     donorRouter(app);
     projectRouter(app);
     devRouter(app);
-
+    assignmentRouter(app);
+    volunteerInterestRouter(app);
     return app;
 };

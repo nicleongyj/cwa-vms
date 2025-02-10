@@ -3,27 +3,28 @@ import {
     getVolunteerService,
     getAllVolunteersService,
     addVolunteerService,
-    deleteVolunteerService,
     updateVolunteerService,
+    deleteVolunteerService,
     getVolunteersByNameService,
 } from "./volunteerService";
+import { VolunteerFetch } from "./volunteerModel";
 
 export const getVolunteers = async (req: Request, res: Response) => {
     try {
         const volunteers = await getAllVolunteersService();
         res.status(200).json(volunteers);
-    } catch {
+    } catch (error) {
         res.status(500).json({
             error_code: "VOLN201",
             message: "Unexpected server error, please contact support for help",
-            details: "Error while retrieving all volunteer data",
+            details: `Error while retrieving all volunteer data : ${error}`,
         });
     }
 };
 
 export const getVolunteerById = async (req: Request, res: Response) => {
     try {
-        const volunteerId = String(req.params.id);
+        const volunteerId: VolunteerFetch = { id: String(req.params.id) };
         const volunteer = await getVolunteerService(volunteerId);
 
         if (!volunteer) {
@@ -35,11 +36,11 @@ export const getVolunteerById = async (req: Request, res: Response) => {
         } else {
             res.status(200).json(volunteer);
         }
-    } catch {
+    } catch (error) {
         res.status(500).json({
             error_code: "VOLN201",
             message: "Unexpected server error, please contact support for help",
-            details: "Error while retrieving volunteer by id",
+            details: `Error while retrieving volunteer by id : ${error}`,
         });
     }
 };
@@ -47,12 +48,13 @@ export const getVolunteerById = async (req: Request, res: Response) => {
 export const addVolunteer = async (req: Request, res: Response) => {
     try {
         const volunteer = await addVolunteerService(req.body);
+
         res.status(201).json(volunteer);
-    } catch {
+    } catch (error) {
         res.status(500).json({
             error_code: "VOLN201",
             message: "Unexpected server error, please contact support for help",
-            details: "Error while retrieving adding volunteer",
+            details: `Error while adding volunteer : ${error} `,
         });
     }
 };
@@ -70,18 +72,18 @@ export const updateVolunteer = async (req: Request, res: Response) => {
         } else {
             res.status(200).json(volunteer);
         }
-    } catch {
+    } catch (error) {
         res.status(500).json({
             error_code: "VOLN201",
             message: "Unexpected server error, please contact support for help",
-            details: "Error while retrieving updating volunteer",
+            details: `Error while updating volunteer : ${error}`,
         });
     }
 };
 
 export const deleteVolunteer = async (req: Request, res: Response) => {
     try {
-        const volunteerId = String(req.params.id);
+        const volunteerId: VolunteerFetch = { id: String(req.params.id) };
         const volunteer = await deleteVolunteerService(volunteerId);
 
         if (!volunteer) {

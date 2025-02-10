@@ -10,10 +10,7 @@ import {
     withRequestBodyValidation,
     withRequestParamsValidation,
 } from "../../common/middleware/withRequestValidation";
-import {
-    ProjectId,
-    ProjectSchema,
-} from "./projectModel";
+import { ProjectId, ProjectSchema } from "./projectModel";
 import express from "express";
 
 const route = Router();
