@@ -3,6 +3,7 @@ import userRouter from "./user/userRouter";
 // import authRouter from "./auth/authRouter";
 import volunteerRouter from "./volunteer/volunteerRouter";
 import donorRouter from "./donor/donorRouter";
+import projectRouter from "./project/projectRouter";
 import devRouter from "./dev/devRouter";
 import assignmentRouter from "./assignment/assignmentRouter";
 import volunteerInterestRouter from "./volunteerInterest/volunteerInterestRouter";
@@ -13,6 +14,7 @@ export default () => {
     userRouter(app);
     volunteerRouter(app);
     donorRouter(app);
+    projectRouter(app);
     devRouter(app);
     assignmentRouter(app);
     volunteerInterestRouter(app);
