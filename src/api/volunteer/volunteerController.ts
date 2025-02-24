@@ -6,6 +6,7 @@ import {
     updateVolunteerService,
     deleteVolunteerService,
     getVolunteersByNameService,
+    updateVolunteerStatusService,
 } from "./volunteerService";
 import { VolunteerFetch } from "./volunteerModel";
 
@@ -122,6 +123,31 @@ export const searchVolunteer = async (req: Request, res: Response) => {
             error_code: "VOLN201",
             message: "Unexpected server error, please contact support for help",
             details: "Error while retrieving deleting volunteer",
+        });
+    }
+};
+
+export const updateVolunteerStatus = async (req: Request, res: Response) => {
+    try {
+        const volunteerId = String(req.params.id);
+        const { status } = req.body;
+
+        const volunteer = await updateVolunteerStatusService(volunteerId, status);
+
+        if (!volunteer) {
+            res.status(404).json({
+                error_code: "VOLN301",
+                message: "Volunteer not found",
+                details: `Volunteer with ID '${volunteerId}' does not exist`,
+            });
+        } else {
+            res.status(200).json(volunteer);
+        }
+    } catch (error) {
+        res.status(500).json({
+            error_code: "VOLN201",
+            message: "Unexpected server error, please contact support for help",
+            details: `Error while updating volunteer status: ${error}`,
         });
     }
 };

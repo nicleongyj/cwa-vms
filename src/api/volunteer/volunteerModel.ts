@@ -3,6 +3,7 @@ import { z } from "zod";
 // Define Enums using Zod
 export const VolunteerDurationEnum = z.enum(["AD_HOC", "LONG_TERM", "SHORT_TERM"]);
 export const VolunteerInterestEnum = z.enum(["BEFRIENDER", "EVENT_SUPPORT", "FUNDRAISER"]);
+export const VolunteerStatusEnum = z.enum(["PENDING", "AVAILABLE", "ASSIGNED", "REJECTED"]);
 
 export const VolunteerSchema = z.object({
     // TODO: change id to uuid
@@ -11,7 +12,7 @@ export const VolunteerSchema = z.object({
     education: z.string().optional(),
     duration: VolunteerDurationEnum,
     interest: z.string(),
-    availability: z.string().optional(),
+    status: VolunteerStatusEnum.default("PENDING"),
     expertise: z.string().optional(),
     volunteering_hours: z.number().optional(),
     past_experience: z.boolean().default(false),
@@ -22,7 +23,7 @@ export const UpdateVolunteerSchema = z.object({
     education: z.string().optional(),
     duration: VolunteerDurationEnum,
     interest_id: z.string(),
-    availability: z.string().optional(),
+    status: VolunteerStatusEnum.optional(),
     expertise: z.string().optional(),
     volunteering_hours: z.number().optional(),
     past_experience: z.boolean().default(false),
@@ -33,7 +34,7 @@ export const UpdateVolunteerRequest = z.object({
     education: z.string().optional(),
     duration: VolunteerDurationEnum,
     interest: z.string(),
-    availability: z.string().optional(),
+    status: VolunteerStatusEnum.optional(),
     expertise: z.string().optional(),
     volunteering_hours: z.number().optional(),
     past_experience: z.boolean().default(false),

@@ -6,6 +6,7 @@ import {
     updateVolunteer,
     deleteVolunteer,
     searchVolunteer,
+    updateVolunteerStatus,
 } from "./volunteerController";
 import {
     withRequestBodyValidation,
@@ -38,4 +39,7 @@ export default (app: Router) => {
 
     // Delete volunteer
     route.delete("/:id", withRequestParamsValidation(VolunteerId), deleteVolunteer);
+
+    // Update volunteer status
+    route.put("/:id/status", withRequestParamsValidation(VolunteerId), updateVolunteerStatus);
 };

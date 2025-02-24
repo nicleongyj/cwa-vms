@@ -45,6 +45,13 @@ enum AssignmentStatus {
   RECONSIDER
 }
 
+enum VolunteerStatus {
+  PENDING
+  AVAILABLE
+  ASSIGNED
+  REJECTED
+}
+
 // Model Definitions
 model GeneralUser {
   user_id    String  @id @default(uuid())  
@@ -99,16 +106,16 @@ model VolunteerInterest {
 }
 
 model Volunteer {
-  volunteer_id        String      @id @default(uuid())
-  end_user_id         String      @unique
+  volunteer_id        String          @id @default(uuid())
+  end_user_id         String          @unique
   languages_spoken    String?
   education           String?
   duration            VolunteerDuration
   interest_id         String?
-  availability        String?
+  status              VolunteerStatus @default(PENDING)
   expertise           String?
   volunteering_hours  Int?
-  past_experience     Boolean      @default(false)
+  past_experience     Boolean         @default(false)
 
   // Relations
   end_user          EndUser  @relation(fields: [end_user_id], references: [end_user_id])

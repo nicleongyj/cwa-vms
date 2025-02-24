@@ -7,6 +7,7 @@ import {
     VolunteerDelete,
     UpdateVolunteerSchema,
     UpdateVolunteerRequest,
+    VolunteerStatusEnum,
 } from "./volunteerModel";
 import { z } from "zod";
 import prisma from "../../common/utils/prisma";
@@ -81,8 +82,8 @@ export const addVolunteerService = async (volunteer: Volunteer) => {
                 languages_spoken: validatedData.languages_spoken,
                 education: validatedData.education,
                 duration: validatedData.duration,
-                interest_id: volunteerInterest.id, // Attach interest_id instead of name
-                availability: validatedData.availability,
+                interest_id: volunteerInterest.id,
+                status: validatedData.status,
                 expertise: validatedData.expertise,
                 volunteering_hours: validatedData.volunteering_hours,
                 past_experience: validatedData.past_experience,
@@ -190,4 +191,34 @@ export const deleteVolunteerService = async (volunteerId: VolunteerDelete) => {
 
 export const getVolunteersByNameService = async (nameQuery: string) => {
     return volunteers.filter((volunteer) => volunteer.name.toLowerCase().includes(nameQuery));
+};
+
+export const updateVolunteerStatusService = async (volunteerId: string, status: string) => {
+    try {
+        // Validate ID format
+        const validId = z.string().uuid().parse(volunteerId);
+
+        // Validate status
+        const validStatus = VolunteerStatusEnum.parse(status);
+
+        // Check if the volunteer exists in the database
+        const existingVolunteer = await prisma.volunteer.findUnique({
+            where: { volunteer_id: validId },
+        });
+
+        if (!existingVolunteer) {
+            throw new Error(`Volunteer with ID '${validId}' not found.`);
+        }
+
+        // Perform the status update
+        const updatedVolunteer = await prisma.volunteer.update({
+            where: { volunteer_id: validId },
+            data: { status: validStatus },
+        });
+
+        return updatedVolunteer;
+    } catch (error) {
+        console.error("Error in updateVolunteerStatusService:", error);
+        throw new Error(`Failed to update volunteer status: ${error}`);
+    }
 };
