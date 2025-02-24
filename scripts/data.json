@@ -1,0 +1,94 @@
+{
+    "generalUsers": [
+        {
+            "name": "Nicholas Seah ",
+            "email": "poookie@example.com"
+        },
+        {
+            "name": "Yong Jing",
+            "email": "zaikia@example.com"
+        },
+        {
+            "name": "Ze Yu",
+            "email": "boss@example.com"
+        },
+        {
+            "name": "Aditi",
+            "email": "meow@example.com:"
+        }
+    ],
+    "endUsers": [
+        {
+            "contact_number": "123456789",
+            "dob": "2000-11-02",
+            "generalUserIndex": 0,
+            "address": "6 College Avenue East, #01-01, University Town, National University of Singapore, 138614",
+            "nationality": "Singaporean",
+            "ethnicity": "Chinese",
+            "gender": "MALE",
+            "occupation": "Certified Registered Nurse"
+        },
+        {
+            "contact_number": "987654321",
+            "dob": "1992-05-15",
+            "generalUserIndex": 1,
+            "address": "8 College Ave E, #B1-50, Singapore 138615",
+            "nationality": "Singaporean",
+            "ethnicity": "Chinese",
+            "gender": "MALE",
+            "occupation": "Data Scientist"
+        },
+        {
+            "contact_number": "99998888",
+            "dob": "2002-01-15",
+            "generalUserIndex": 2,
+            "address": "28 College Ave E, B1-01, Singapore 138598",
+            "nationality": "Singaporean",
+            "ethnicity": "Chinese",
+            "gender": "MALE",
+            "occupation": "Data Scientist"
+        },
+        {
+            "contact_number": "11112222",
+            "dob": "2010-01-15",
+            "generalUserIndex": 3,
+            "address": "28 College Ave E, B1-01, Singapore 138598",
+            "nationality": "Malaysian",
+            "ethnicity": "Indian",
+            "gender": "FEMALE",
+            "occupation": "Student"
+        }
+    ],
+    "donors": [
+        {
+            "frequency": "ONE_TIME",
+            "endUserIndex": 0
+        },
+        {
+            "frequency": "MONTHLY",
+            "endUserIndex": 1
+        },
+        {
+            "frequency": "YEARLY",
+            "endUserIndex": 2
+        }
+    ],
+    "volunteers": [
+        {
+            "interest": "BEFRIENDER",
+            "duration": "AD_HOC",
+            "endUserIndex": 3
+        }
+    ],
+    "staff": [
+        {
+            "generalUserIndex": 0
+        },
+        {
+            "generalUserIndex": 1
+        },
+        {
+            "generalUserIndex": 2
+        }
+    ]
+}
